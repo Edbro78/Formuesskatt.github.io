@@ -75,6 +75,36 @@
             color: #475569; /* slate-600 */
         }
         
+        /* --- Slider Styles --- */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #1e293b; /* slate-800 */
+            border-radius: 5px;
+            outline: none;
+            transition: background 0.3s, opacity 0.2s;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--accent-blue-light);
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid var(--dark-blue);
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--accent-blue-light);
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid var(--dark-blue);
+        }
+        
         /* Page 2 Table Styles */
         .rate-table-container {
             background-color: var(--card-bg);
@@ -136,7 +166,7 @@
                     <!-- Column 1: Input -->
                     <div class="lg:col-span-1 space-y-6">
                         <div class="bg-[var(--card-bg)] p-6 rounded-xl h-full">
-                            <h2 class="text-2xl font-semibold text-white border-b border-[var(--border-color)] pb-3 mb-4">Del 1: Input</h2>
+                            <h2 class="text-2xl font-semibold text-white border-b border-[var(--border-color)] pb-3 mb-4">Input</h2>
                             <div class="space-y-5">
                                <div>
                                    <label class="block text-sm font-medium text-slate-300 mb-2">Antall personer</label>
@@ -162,7 +192,7 @@
                     <!-- Column 2: Results & Navigation -->
                     <div class="lg:col-span-1 space-y-6">
                          <div class="bg-[var(--card-bg)] p-6 rounded-xl h-full flex flex-col">
-                            <h2 class="text-2xl font-semibold text-white border-b border-[var(--border-color)] pb-3 mb-4">Del 1: Resultater</h2>
+                            <h2 class="text-2xl font-semibold text-white border-b border-[var(--border-color)] pb-3 mb-4">Resultater</h2>
                             <div class="text-center bg-slate-900/80 p-6 rounded-lg mb-6">
                                 <div id="total-wealth-tax" class="output-value">0 kr</div>
                                 <div class="output-label mt-2">Total Formuesskatt</div>
@@ -191,14 +221,10 @@
 
     <!-- =========== PAGE 2: PURCHASING POWER CALCULATOR =========== -->
     <div id="page2" class="page">
-        <div class="dashboard-container min-h-screen flex flex-col items-center justify-center p-4 lg:p-8">
-            <div class="w-full max-w-5xl mx-auto">
-                 <header class="flex justify-between items-center mb-8">
-                     <button id="goToPage1Btn" class="text-sm bg-slate-700 hover:bg-slate-600 text-slate-400 hover:text-slate-200 font-medium py-1 px-3 rounded-md transition-colors">
-                        ← Tilbake til kalkulator
-                    </button>
-                    <h1 class="text-2xl md:text-3xl font-bold text-white text-center">Hvilken bankrente må du ha for å gå i null etter skatt?</h1>
-                    <div class="w-40 invisible"></div> <!-- Spacer, made invisible but takes up space -->
+        <div class="dashboard-container min-h-screen flex flex-col items-center p-4 py-8 lg:py-12">
+            <div class="w-full max-w-5xl mx-auto flex-grow">
+                 <header class="text-center mb-8">
+                    <h1 class="text-2xl md:text-3xl font-bold text-white">Hvilken bankrente må du ha for å gå i null etter skatt?</h1>
                 </header>
                 
                 <div class="mb-6 w-48">
@@ -213,6 +239,12 @@
                     <!-- AS Table -->
                     <div id="as-table" class="rate-table-container rate-table-as"></div>
                 </div>
+            </div>
+            <!-- Button moved to bottom, part of the flow -->
+            <div class="w-full max-w-5xl mx-auto mt-8 flex justify-end">
+                 <button id="goToPage1Btn" class="text-sm bg-slate-700 hover:bg-slate-600 text-slate-400 hover:text-slate-200 font-medium py-1 px-3 rounded-md transition-colors">
+                    ← tilbake til Formuesskatt
+                </button>
             </div>
         </div>
     </div>
@@ -240,15 +272,15 @@
         // --- APPLICATION SETUP ---
         const WealthTaxApp = {
             assetsConfig: [
-                { id: 'primary-residence', label: 'Primærbolig', value: 20000000 },
-                { id: 'holiday-home', label: 'Fritidseiendom', value: 3000000 },
-                { id: 'land-plot', label: 'Tomt', value: 1000000 },
-                { id: 'car-boat', label: 'Bil / Båt', value: 500000 },
-                { id: 'limited-company', label: 'Aksjeselskap (AS)', value: 10000000 },
-                { id: 'private-portfolio', label: 'Privat portefølje (ASK)', value: 2000000 },
-                { id: 'secondary-residence', label: 'Sekundærbolig', value: 4000000 },
-                { id: 'bank-deposits', label: 'Bankinnskudd', value: 1500000 },
-                { id: 'operating-assets', label: 'Driftsmidler', value: 0 },
+                { id: 'primary-residence', label: 'Primærbolig', value: 20000000, min: 0, max: 50000000, step: 100000 },
+                { id: 'holiday-home', label: 'Fritidseiendom', value: 3000000, min: 0, max: 20000000, step: 50000 },
+                { id: 'land-plot', label: 'Tomt', value: 1000000, min: 0, max: 10000000, step: 50000 },
+                { id: 'car-boat', label: 'Bil / Båt', value: 500000, min: 0, max: 5000000, step: 10000 },
+                { id: 'limited-company', label: 'Aksjeselskap (AS)', value: 10000000, min: 0, max: 100000000, step: 100000 },
+                { id: 'private-portfolio', label: 'Privat portefølje (ASK)', value: 2000000, min: 0, max: 50000000, step: 100000 },
+                { id: 'secondary-residence', label: 'Sekundærbolig', value: 4000000, min: 0, max: 30000000, step: 100000 },
+                { id: 'bank-deposits', label: 'Bankinnskudd', value: 1500000, min: 0, max: 10000000, step: 50000 },
+                { id: 'operating-assets', label: 'Driftsmidler', value: 0, min: 0, max: 20000000, step: 50000 },
             ],
             discounts: {
                 'primary-residence': { under_threshold: 0.75, over_threshold: 0.30 },
@@ -265,21 +297,39 @@
 
             createAssetInputs: function() {
                 const container = document.getElementById('assets-container');
+                container.innerHTML = ''; // Clear existing content
                 this.assetsConfig.forEach(asset => {
-                    container.innerHTML += `<div><label for="${asset.id}" class="block text-sm font-medium text-slate-300">${asset.label} (NOK)</label><input type="text" id="${asset.id}" class="asset-input mt-1" value="${this.formatNumber(asset.value)}" placeholder="0"></div>`;
+                    const div = document.createElement('div');
+                    div.className = 'asset-slider-group';
+                    div.innerHTML = `
+                        <div class="flex justify-between items-baseline mb-2">
+                            <label for="${asset.id}" class="text-sm font-medium text-slate-300">${asset.label}</label>
+                            <span id="${asset.id}-value" class="text-base font-semibold text-[var(--accent-blue-light)]">${this.formatCurrency(asset.value)}</span>
+                        </div>
+                        <input type="range" id="${asset.id}" min="${asset.min}" max="${asset.max}" step="${asset.step}" value="${asset.value}">
+                    `;
+                    container.appendChild(div);
                 });
             },
 
             attachEventListeners: function() {
                 document.getElementById('page1').addEventListener('input', (e) => {
-                    if (e.target.matches('.asset-input, #private-debt, #primary-residence-threshold')) {
+                    if (e.target.type === 'range') {
+                        const valueSpan = document.getElementById(`${e.target.id}-value`);
+                        if (valueSpan) {
+                            valueSpan.textContent = this.formatCurrency(parseFloat(e.target.value));
+                        }
+                        this.calculateAll();
+                    } else if (e.target.matches('.asset-input, #private-debt, #primary-residence-threshold')) {
                         this.formatAndRecalculate(e.target);
                     }
                 });
+
                 document.getElementById('inflation-rate').addEventListener('input', (e) => {
                     this.formatAndRecalculate(e.target);
-                    this.updatePage2(); // Update page 2 if inflation changes there
+                    this.updatePage2();
                 });
+
                 document.getElementById('person-count').addEventListener('click', (e) => {
                     if (e.target.matches('.person-btn')) {
                         this.state.personCount = parseInt(e.target.dataset.value, 10);
@@ -393,7 +443,14 @@
 
             getValues: function() {
                 const values = { assets: {} };
-                this.assetsConfig.forEach(asset => values.assets[asset.id] = this.parseNumber(document.getElementById(asset.id).value));
+                // Get values from sliders
+                this.assetsConfig.forEach(asset => {
+                    const slider = document.getElementById(asset.id);
+                    if (slider) {
+                        values.assets[asset.id] = parseFloat(slider.value);
+                    }
+                });
+                // Get values from text inputs
                 values.privateDebt = this.parseNumber(document.getElementById('private-debt').value);
                 values.primaryResidenceThreshold = this.parseNumber(document.getElementById('primary-residence-threshold').value);
                 values.inflationRate = this.parseNumber(document.getElementById('inflation-rate').value, true);
