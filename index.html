@@ -14,22 +14,30 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* --- General Styles --- */
+        /* --- Generelle Stiler --- */
+        html, body {
+            height: 100%; /* Sikrer at html og body tar hele viewport-høyden */
+            margin: 0;
+            overflow-x: hidden; /* Forhindrer horisontal scrollbar */
+            overflow-y: hidden; /* Forhindrer vertikal scrollbar på hovedsiden, innhold i bokser kan scrolle om nødvendig */
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: #0f172a; /* slate-900 */
             color: #E5E7EB; /* light-text */
         }
 
-        /* --- Page Navigation --- */
+        /* --- Sidenavigasjon --- */
         .page {
             display: none;
+            height: 100%; /* Sikrer at hver side tar full høyde */
         }
         .page.active {
             display: block;
         }
 
-        /* --- Dashboard Specific Styles --- */
+        /* --- Dashboard Spesifikke Stiler --- */
         .dashboard-container {
             --dark-blue: #1A2A47;
             --accent-blue-light: #60A5FA;
@@ -39,32 +47,47 @@
             --medium-text: #CBD5E1;
             --border-color: #364A6E;
             background-color: var(--dark-blue);
+            padding-top: 0.1rem; 
+            padding-bottom: 0.1rem; 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: flex-start; 
+            height: 100%; /* Tar full høyde av foreldreelementet (body) */
+        }
+        @media (min-width: 1024px) { /* lg breakpoint */
+            .dashboard-container {
+                padding-top: 0.2rem; 
+                padding-bottom: 0.2rem; 
+            }
         }
         
-        /* Style for the main output values */
+        /* Stil for hovedresultatverdiene */
         .output-value {
-            font-size: 2rem; /* text-3xl */
+            font-size: 1.8rem; /* Større font for å fylle plassen bedre (original i forrige svar) */
             font-weight: 700;
             color: var(--accent-blue-vibrant);
             word-break: break-word;
         }
 
         .output-label {
-            font-size: 0.9rem; /* text-sm */
+            font-size: 0.75rem; /* Større font for bedre lesbarhet (original i forrige svar) */
             color: var(--medium-text);
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
         
-        /* Common Number Input Style */
+        /* Felles stil for nummerinput */
         input[type="text"].asset-input {
             -moz-appearance: textfield;
             background-color: #1e293b; /* slate-800 */
             border: 1px solid var(--border-color);
-            border-radius: 0.375rem; /* rounded-md */
-            padding: 0.5rem 0.75rem;
+            border-radius: 0.25rem; 
+            padding: 0.1rem 0.2rem; /* Ytterligere redusert padding for å gjøre feltene lavere */
             color: var(--light-text);
             width: 100%;
+            font-size: 0.6rem; /* Ytterligere redusert fontstørrelse */
         }
         input[type="text"].asset-input:focus {
             outline: none;
@@ -75,60 +98,69 @@
             color: #475569; /* slate-600 */
         }
         
-        /* --- Slider Styles --- */
+        /* --- Slider stiler --- */
         input[type="range"] {
             -webkit-appearance: none;
             appearance: none;
             width: 100%;
-            height: 8px;
+            height: 2px; /* Ytterligere redusert høyde på slideren */
             background: #1e293b; /* slate-800 */
-            border-radius: 5px;
+            border-radius: 3px; 
             outline: none;
             transition: background 0.3s, opacity 0.2s;
         }
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 10px; /* Ytterligere redusert thumb-størrelse */
+            height: 10px; /* Ytterligere redusert thumb-størrelse */
             background: var(--accent-blue-light);
             cursor: pointer;
             border-radius: 50%;
-            border: 2px solid var(--dark-blue);
+            border: 1px solid var(--dark-blue); 
+            margin-top: -4px; /* Juster for å sentrere thumb på den tynnere slideren */
         }
         input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
+            width: 10px; 
+            height: 10px; 
             background: var(--accent-blue-light);
             cursor: pointer;
             border-radius: 50%;
-            border: 2px solid var(--dark-blue);
+            border: 1px solid var(--dark-blue);
         }
         
-        /* Page 2 Table Styles */
+        /* Side 2 Tabellstiler */
         .rate-table-container {
             background-color: var(--card-bg);
-            padding: 1.5rem;
+            padding: 0.4rem; 
             border-radius: 0.75rem;
         }
         .rate-table-as {
-             background-color: #1e3a8a; /* A darker blue for AS section */
+            background-color: #1e3a8a; 
         }
         .rate-table-header {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 1rem;
+            /* Justerer grid-kolonner for bedre passform på mindre effektive oppløsninger */
+            grid-template-columns: minmax(65px, 1.5fr) repeat(4, minmax(40px, 1fr)); 
+            gap: 0.2rem; 
             color: var(--medium-text);
             font-weight: 600;
-            padding-bottom: 0.5rem;
+            padding-bottom: 0.2rem; 
             border-bottom: 1px solid var(--border-color);
+            font-size: 0.65rem; 
+            text-align: right; 
+        }
+        .rate-table-header > div:first-child {
+            text-align: left; 
         }
         .rate-table-row {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 1rem;
-            padding: 0.75rem 0;
+            /* Justerer grid-kolonner for bedre passform på mindre effektive oppløsninger */
+            grid-template-columns: minmax(65px, 1.5fr) repeat(4, minmax(40px, 1fr)); 
+            gap: 0.2rem; 
+            padding: 0.25rem 0; 
             border-bottom: 1px solid var(--border-color);
+            font-size: 0.65rem; 
         }
         .rate-table-row:last-child {
             border-bottom: none;
@@ -136,120 +168,141 @@
         .rate-table-row-label {
             font-weight: 500;
             color: var(--light-text);
+            text-align: left; 
         }
         .rate-table-cell {
             text-align: right;
         }
         .rate-table-final-row {
-            font-size: 1.125rem;
+            font-size: 0.7rem; 
             font-weight: 700;
             color: white;
             background-color: rgba(0, 0, 0, 0.2);
-            margin: 0 -1.5rem; /* Extend background */
-            padding: 0.75rem 1.5rem; /* Restore padding */
+            margin: 0 -0.4rem; 
+            padding: 0.3rem 0.4rem; 
+        }
+        /* Custom scrollbar for better appearance on overflow content */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #60A5FA;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #3b82f6;
         }
 
     </style>
 </head>
 <body class="antialiased">
 
-    <!-- =========== PAGE 1: WEALTH TAX CALCULATOR =========== -->
+    <!-- =========== SIDE 1: FORMUESSKATTKALKULATOR =========== -->
     <div id="page1" class="page active">
-        <div class="dashboard-container min-h-screen flex flex-col items-center justify-center p-4 lg:p-8">
-            <div class="w-full max-w-7xl mx-auto">
-                <header class="text-center mb-8">
-                    <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">Beregning av Formuesskatt</h1>
-                    <p class="text-slate-400">Beregn din formuesskatt og se hva som kreves for å bevare kjøpekraften.</p>
+        <div class="dashboard-container w-full flex flex-col items-center justify-center p-4 lg:p-8">
+            <div class="w-full max-w-6xl mx-auto h-full flex flex-col justify-between"> <!-- Lagt til h-full flex flex-col justify-between -->
+                <header class="text-center mb-1"> 
+                    <h1 class="text-xl md:text-2xl font-bold text-white mb-0.5">Beregning av Formuesskatt</h1> 
+                    <p class="text-slate-400 text-xs">Beregn din formuesskatt og se hva som kreves for å bevare kjøpekraften.</p> 
                 </header>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Column 1: Input -->
-                    <div class="lg:col-span-1 space-y-6">
-                        <div class="bg-[var(--card-bg)] p-6 rounded-xl h-full">
-                            <h2 class="text-2xl font-semibold text-white border-b border-[var(--border-color)] pb-3 mb-4">Input</h2>
-                            <div class="space-y-5">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-2 flex-grow"> <!-- Lagt til flex-grow her -->
+                    <!-- Kolonne 1: Input -->
+                    <div class="lg:col-span-1 space-y-1.5 flex flex-col"> 
+                        <div class="bg-[var(--card-bg)] p-2 rounded-xl h-full flex flex-col"> 
+                            <h2 class="text-base font-semibold text-white border-b border-[var(--border-color)] pb-1 mb-1">Input</h2> 
+                            <div class="space-y-1.5 flex-grow"> 
                                <div>
-                                   <label class="block text-sm font-medium text-slate-300 mb-2">Antall personer</label>
-                                   <div class="flex gap-2" id="person-count">
-                                       <button data-value="1" class="person-btn flex-1 bg-blue-600 text-white font-semibold py-2 px-4 rounded-md">1 person</button>
-                                       <button data-value="2" class="person-btn flex-1 bg-slate-700 text-slate-300 font-semibold py-2 px-4 rounded-md">2 personer</button>
-                                   </div>
+                                    <label class="block text-xs font-medium text-slate-300 mb-0.5">Antall personer</label>
+                                    <div class="flex gap-1.5" id="person-count"> 
+                                        <button data-value="1" class="person-btn flex-1 bg-blue-600 text-white font-semibold py-0.5 px-1.5 rounded-md text-xs">1 person</button> 
+                                        <button data-value="2" class="person-btn flex-1 bg-slate-700 text-slate-300 font-semibold py-0.5 px-1.5 rounded-md text-xs">2 personer</button> 
+                                    </div>
                                </div>
+                               <!-- "Innslagspunkt primærbolig" er fjernet herfra i HTML -->
                                <div>
-                                   <label for="primary-residence-threshold" class="block text-sm font-medium text-slate-300">Innslagspunkt primærbolig (NOK)</label>
-                                   <input type="text" id="primary-residence-threshold" class="asset-input mt-1" value="10 000 000">
-                               </div>
-                               <div>
-                                   <label for="private-debt" class="block text-sm font-medium text-slate-300">Privat gjeld (NOK)</label>
-                                   <input type="text" id="private-debt" class="asset-input mt-1" value="5 000 000" placeholder="0">
+                                    <label for="private-debt" class="block text-xs font-medium text-slate-300">Privat gjeld (NOK)</label>
+                                    <input type="text" id="private-debt" class="asset-input mt-0.5" value="5 000 000" placeholder="0">
                                </div>
                             </div>
-                            <h3 class="text-xl font-semibold text-white border-b border-[var(--border-color)] pb-3 mt-8 mb-4">Eiendeler</h3>
-                            <div id="assets-container" class="space-y-4"></div>
+                            <h3 class="text-sm font-semibold text-white border-b border-[var(--border-color)] pb-1 mt-2 mb-1">Eiendeler</h3> 
+                            <div id="assets-container" class="space-y-0.5 flex-grow overflow-y-auto custom-scrollbar"> 
+                                <!-- Innhold genereres av JS -->
+                            </div> 
                         </div>
                     </div>
 
-                    <!-- Column 2: Results & Navigation -->
-                    <div class="lg:col-span-1 space-y-6">
-                         <div class="bg-[var(--card-bg)] p-6 rounded-xl h-full flex flex-col">
-                            <h2 class="text-2xl font-semibold text-white border-b border-[var(--border-color)] pb-3 mb-4">Resultater</h2>
-                            <div class="text-center bg-slate-900/80 p-6 rounded-lg mb-6">
-                                <div id="total-wealth-tax" class="output-value">0 kr</div>
-                                <div class="output-label mt-2">Total Formuesskatt</div>
+                    <!-- Kolonne 2: Resultater og navigasjon -->
+                    <div class="lg:col-span-1 space-y-1.5 flex flex-col"> 
+                           <div class="bg-[var(--card-bg)] p-3 rounded-xl h-full flex flex-col"> <!-- Økt padding for å fylle bedre -->
+                                <h2 class="text-base font-semibold text-white border-b border-[var(--border-color)] pb-1 mb-1">Resultater</h2> 
+                                <div class="text-center bg-slate-900/80 p-4 rounded-lg mb-2"> <!-- Økt padding og mb for å fylle bedre -->
+                                    <div id="total-wealth-tax" class="output-value text-2xl">0 kr</div> <!-- Økt til text-2xl -->
+                                    <div class="output-label mt-1 text-base">Total Formuesskatt</div> <!-- Økt mt og text-base -->
+                                </div>
+                                <div class="space-y-1.5 bg-slate-800/60 p-3 rounded-lg flex-grow text-sm"> <!-- Økt space-y, padding, og text-size -->
+                                    <div class="flex justify-between items-center text-slate-300 text-sm"><span>Bruttoformue:</span><span id="gross-wealth" class="font-semibold text-white">0 kr</span></div><hr class="border-[var(--border-color)]">
+                                    <div class="flex justify-between items-center text-slate-300 text-sm"><span>Verdsettelsesrabatt:</span><span id="total-discount" class="font-semibold text-white">0 kr</span></div><hr class="border-[var(--border-color)]">
+                                    <div class="flex justify-between items-center text-slate-300 text-sm"><span>Nettoformue (etter rabatt):</span><span id="net-wealth" class="font-semibold text-white">0 kr</span></div><hr class="border-[var(--border-color)]">
+                                    <div class="flex justify-between items-center text-slate-300 text-sm"><span>Fradragsberettiget gjeld:</span><span id="deductible-debt" class="font-semibold text-white">0 kr</span></div><hr class="border-[var(--border-color)]">
+                                    <div class="flex justify-between items-center text-slate-300 text-sm"><span>Fribeløp:</span><span id="tax-free-allowance" class="font-semibold text-white">0 kr</span></div><hr class="border-[var(--border-color)]">
+                                    <div class="flex justify-between items-center text-base text-white"><span class="font-medium">Skattegrunnlag:</span><span id="taxable-base" class="font-bold">0 kr</span></div><hr class="border-[var(--border-color)]"> 
+                                    <div class="flex justify-between items-center text-slate-300 mt-1.5 text-sm"><span>Skatteandel av bruttoformue:</span><span id="tax-as-percentage-of-gross" class="font-semibold text-white">0.00 %</span></div> 
+                                </div>
+                                    <!-- Navigasjonsknapp til del 2 -->
+                                <div class="mt-auto pt-2 text-center"> 
+                                    <button id="goToPage2Btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 px-2 rounded-lg shadow-md transition-transform transform hover:scale-105 text-sm"> 
+                                        Analyser kjøpekraft →
+                                    </button>
+                                </div>
                             </div>
-                            <div class="space-y-3 bg-slate-800/60 p-4 rounded-lg flex-grow">
-                                <div class="flex justify-between items-center text-slate-300"><span>Bruttoformue:</span><span id="gross-wealth" class="font-semibold text-white">0 kr</span></div><hr class="border-[var(--border-color)]">
-                                <div class="flex justify-between items-center text-slate-300"><span>Verdsettelsesrabatt:</span><span id="total-discount" class="font-semibold text-white">0 kr</span></div><hr class="border-[var(--border-color)]">
-                                <div class="flex justify-between items-center text-slate-300"><span>Nettoformue (etter rabatt):</span><span id="net-wealth" class="font-semibold text-white">0 kr</span></div><hr class="border-[var(--border-color)]">
-                                <div class="flex justify-between items-center text-slate-300"><span>Fradragsberettiget gjeld:</span><span id="deductible-debt" class="font-semibold text-white">0 kr</span></div><hr class="border-[var(--border-color)]">
-                                <div class="flex justify-between items-center text-slate-300"><span>Fribeløp:</span><span id="tax-free-allowance" class="font-semibold text-white">0 kr</span></div><hr class="border-[var(--border-color)]">
-                                <div class="flex justify-between items-center text-lg text-white"><span class="font-medium">Skattegrunnlag:</span><span id="taxable-base" class="font-bold">0 kr</span></div><hr class="border-[var(--border-color)]">
-                                <div class="flex justify-between items-center text-slate-300 mt-4"><span>Skatteandel av bruttoformue:</span><span id="tax-as-percentage-of-gross" class="font-semibold text-white">0.00 %</span></div>
-                            </div>
-                             <!-- Navigation Button to Part 2 -->
-                            <div class="mt-auto pt-6 text-center">
-                                <button id="goToPage2Btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105">
-                                    Analyser kjøpekraft →
-                                </button>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- =========== PAGE 2: PURCHASING POWER CALCULATOR =========== -->
+    <!-- =========== SIDE 2: KJØPEKRAFTKALKULATOR =========== -->
     <div id="page2" class="page">
-        <div class="dashboard-container min-h-screen flex flex-col items-center justify-center p-4 lg:p-8">
-            <div class="w-full max-w-7xl mx-auto">
-                 <header class="text-center mb-8">
-                    <h1 class="text-2xl md:text-3xl font-bold text-white">Hvilken bankrente må du ha for å gå i null etter skatt?</h1>
-                </header>
+        <div class="dashboard-container w-full flex flex-col items-center justify-center p-4 lg:p-8">
+            <div class="w-full max-w-6xl mx-auto h-full flex flex-col justify-between"> <!-- Lagt til h-full flex flex-col justify-between for ensartet høyde -->
+                    <header class="text-center mb-1"> 
+                        <h1 class="text-xl md:text-2xl font-bold text-white mb-0.5">Hvilken bankrente må du ha for å gå i null etter skatt?</h1> 
+                    </header>
 
-                <div class="grid grid-cols-1">
-                     <div class="bg-[var(--card-bg)] p-6 rounded-xl h-full flex flex-col">
-                        <div class="mb-6 w-48">
-                             <label for="inflation-rate" class="block text-sm font-medium text-slate-300">Forventet inflasjon (%)</label>
-                             <input type="text" id="inflation-rate" class="asset-input mt-1" value="3.0">
+                    <div class="grid grid-cols-1 flex-grow"> <!-- Lagt til flex-grow her -->
+                            <div class="bg-[var(--card-bg)] p-2 rounded-xl h-full flex flex-col"> 
+                                <div class="mb-1.5 w-48"> 
+                                    <label for="inflation-rate" class="block text-xs font-medium text-slate-300">Forventet inflasjon (%)</label>
+                                    <input type="text" id="inflation-rate" class="asset-input mt-0.5" value="3.0">
+                                </div>
+                                
+                                <div class="space-y-1.5 flex-grow overflow-y-auto custom-scrollbar"> 
+                                    <!-- Privatperson Tabell -->
+                                    <div id="private-person-table" class="rate-table-container mb-2"></div> 
+                                    
+                                    <!-- AS Tabell -->
+                                    <div id="as-table" class="rate-table-container rate-table-as"></div>
+                                </div>
+                            </div>
+                    </div>
+                    <!-- Flyttet knappen hit og wrappet i en kolonne for å matche layout på Side 1 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-2 mt-auto pt-2"> <!-- Nytt grid for knappen -->
+                        <div class="lg:col-span-1"> <!-- Sikrer at knappen tar opp halve bredden på desktop -->
+                            <div class="text-center"> 
+                                <button id="goToPage1Btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 px-2 rounded-lg shadow-md transition-transform transform hover:scale-105 text-sm"> 
+                                    ← tilbake til Formuesskatt
+                                </button>
+                            </div>
                         </div>
-                        
-                        <div class="space-y-8 flex-grow">
-                            <!-- Privatperson Table -->
-                            <div id="private-person-table" class="rate-table-container"></div>
-                            
-                            <!-- AS Table -->
-                            <div id="as-table" class="rate-table-container rate-table-as"></div>
-                        </div>
-
-                        <!-- Button moved here -->
-                        <div class="mt-auto pt-6 text-center">
-                            <button id="goToPage1Btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105">
-                                ← tilbake til Formuesskatt
-                            </button>
+                        <div class="lg:col-span-1 hidden lg:block"> <!-- Dummy kolonne for å fylle den andre halvdelen på desktop -->
+                            <!-- Denne div'en er tom og kun for layout -->
                         </div>
                     </div>
-                </div>
             </div>
         </div>
     </div>
@@ -271,11 +324,13 @@
             }
         }
         
+        // Hendelseslyttere for sidenavigasjonsknapper
         document.getElementById('goToPage2Btn').addEventListener('click', () => showPage('page2'));
         document.getElementById('goToPage1Btn').addEventListener('click', () => showPage('page1'));
         
-        // --- APPLICATION SETUP ---
+        // --- APPLIKASJONSOPPSETT ---
         const WealthTaxApp = {
+            // Konfigurasjon for ulike eiendelstyper, inkludert etiketter, startverdier og sliderområder.
             assetsConfig: [
                 { id: 'primary-residence', label: 'Primærbolig', value: 20000000, min: 0, max: 50000000, step: 100000 },
                 { id: 'holiday-home', label: 'Fritidseiendom', value: 3000000, min: 0, max: 20000000, step: 50000 },
@@ -287,29 +342,41 @@
                 { id: 'bank-deposits', label: 'Bankinnskudd', value: 1500000, min: 0, max: 10000000, step: 50000 },
                 { id: 'operating-assets', label: 'Driftsmidler', value: 0, min: 0, max: 20000000, step: 50000 },
             ],
+            // Rabattsatser/verdivurderingsfaktorer for ulike eiendelstyper.
+            // Disse representerer hvor mye av eiendelens verdi som medregnes i formuegrunnlaget.
             discounts: {
-                'primary-residence': { under_threshold: 0.75, over_threshold: 0.30 },
-                'holiday-home': 0.70, 'land-plot': 0.70, 'car-boat': 0, 'limited-company': 0.20,
-                'private-portfolio': 0.20, 'secondary-residence': 0, 'bank-deposits': 0, 'operating-assets': 0.30,
+                // For primærbolig: 25% verdivurdering (dvs. 75% rabatt) opp til terskel på 10M, og 70% verdivurdering (dvs. 30% rabatt) over terskel.
+                'primary-residence': { valuation_under_threshold: 0.25, valuation_over_threshold: 0.70 },
+                'holiday-home': 0.70, // 70% verdivurdering
+                'land-plot': 0.70,    // 70% verdivurdering
+                'car-boat': 1,        // 100% verdivurdering (0% rabatt)
+                'limited-company': 0.20, // 20% verdivurdering (80% rabatt)
+                'private-portfolio': 0.20, // 20% verdivurdering (80% rabatt)
+                'secondary-residence': 1, // 100% verdivurdering (0% rabatt)
+                'bank-deposits': 1,      // 100% verdivurdering (0% rabatt)
+                'operating-assets': 0.70, // 70% verdivurdering (30% rabatt)
             },
+            // Applikasjonsstatus, f.eks. antall personer for skatteberegninger.
             state: { personCount: 1 },
             
+            // Initialiserer applikasjonen: oppretter eiendelsinput-sliders og fester hendelseslyttere.
             init: function() {
                 this.createAssetInputs();
                 this.attachEventListeners();
-                this.calculateAll();
+                this.calculateAll(); // Utfører første beregning
             },
 
+            // Oppretter dynamisk input-sliders for hver eiendel definert i assetsConfig.
             createAssetInputs: function() {
                 const container = document.getElementById('assets-container');
-                container.innerHTML = ''; // Clear existing content
+                container.innerHTML = ''; // Tømmer eksisterende innhold
                 this.assetsConfig.forEach(asset => {
                     const div = document.createElement('div');
                     div.className = 'asset-slider-group';
                     div.innerHTML = `
-                        <div class="flex justify-between items-baseline mb-2">
-                            <label for="${asset.id}" class="text-sm font-medium text-slate-300">${asset.label}</label>
-                            <span id="${asset.id}-value" class="text-base font-semibold text-[var(--accent-blue-light)]">${this.formatCurrency(asset.value)}</span>
+                        <div class="flex justify-between items-baseline mb-0"> 
+                            <label for="${asset.id}" class="text-xs font-medium text-slate-300">${asset.label}</label>
+                            <span id="${asset.id}-value" class="text-xs font-semibold text-[var(--accent-blue-light)]">${this.formatCurrency(asset.value)}</span> 
                         </div>
                         <input type="range" id="${asset.id}" min="${asset.min}" max="${asset.max}" step="${asset.step}" value="${asset.value}">
                     `;
@@ -317,62 +384,90 @@
                 });
             },
 
+            // Fester hendelseslyttere til input-elementer og personantallknapper.
             attachEventListeners: function() {
+                // Hendelseslytter for inputendringer på side 1 (sliders og tekstinput).
                 document.getElementById('page1').addEventListener('input', (e) => {
                     if (e.target.type === 'range') {
+                        // Oppdater visningsverdi for sliders
                         const valueSpan = document.getElementById(`${e.target.id}-value`);
                         if (valueSpan) {
                             valueSpan.textContent = this.formatCurrency(parseFloat(e.target.value));
                         }
-                        this.calculateAll();
-                    } else if (e.target.matches('.asset-input, #private-debt, #primary-residence-threshold')) {
+                        this.calculateAll(); // Beregn på nytt når slider endres
+                    } else if (e.target.matches('.asset-input, #private-debt')) { 
+                        // Formater og beregn på nytt for tekstinput
                         this.formatAndRecalculate(e.target);
                     }
                 });
 
+                // Hendelseslytter for inflasjonsrate-input på side 2.
                 document.getElementById('inflation-rate').addEventListener('input', (e) => {
                     this.formatAndRecalculate(e.target);
-                    this.updatePage2();
+                    this.updatePage2(); // Oppdater side 2-beregningene når inflasjonsraten endres
                 });
 
+                // Hendelseslytter for personantallknapper.
                 document.getElementById('person-count').addEventListener('click', (e) => {
                     if (e.target.matches('.person-btn')) {
                         this.state.personCount = parseInt(e.target.dataset.value, 10);
+                        // Veksle aktiv knappestil
                         document.querySelectorAll('.person-btn').forEach(btn => {
                             btn.classList.toggle('bg-blue-600', btn === e.target);
                             btn.classList.toggle('text-white', btn === e.target);
                             btn.classList.toggle('bg-slate-700', btn !== e.target);
                             btn.classList.toggle('text-slate-300', btn !== e.target);
                         });
-                        this.calculateAll();
+                        this.calculateAll(); // Beregn på nytt basert på nytt personantall
                     }
                 });
             },
             
+            // Beregner alle formuesskattkomponenter basert på gjeldende inputverdier.
             calculateAll: function() {
                 const values = this.getValues();
+                // Fast terskel for primærbolig (tidligere input-felt)
+                const primaryResidenceFixedThreshold = 10000000; 
+
+                // Bestemmer skattefritt beløp basert på personantall
                 const taxFreeAllowance = this.state.personCount === 1 ? 1700000 : 3400000;
+                // Bestemmer terskel for høy sats basert på personantall
                 const highRateThreshold = this.state.personCount === 1 ? 20000000 : 40000000;
+                // Summerer alle eiendelsverdier for å få bruttoformue
                 const grossWealth = Object.values(values.assets).reduce((sum, val) => sum + val, 0);
 
-                let totalDiscount = 0, discountForDebtCalc = 0;
+                let totalValuedWealth = 0; // Summen av eiendeler etter verdivurdering (skattemessig formue)
+
                 Object.keys(values.assets).forEach(key => {
                     const assetValue = values.assets[key];
-                    let currentDiscount = 0;
+                    let valuedAmount = assetValue; 
+
                     if (key === 'primary-residence') {
-                        const threshold = values.primaryResidenceThreshold;
-                        currentDiscount = (Math.min(assetValue, threshold) * this.discounts[key].under_threshold) + (Math.max(0, assetValue - threshold) * this.discounts[key].over_threshold);
+                        // Primærbolig verdivurderes til 25% opp til terskel, og 70% over terskel
+                        const valFactors = this.discounts[key];
+                        valuedAmount = (Math.min(assetValue, primaryResidenceFixedThreshold) * valFactors.valuation_under_threshold) +
+                                       (Math.max(0, assetValue - primaryResidenceFixedThreshold) * valFactors.valuation_over_threshold);
                     } else {
-                        currentDiscount = assetValue * (this.discounts[key] || 0);
-                        discountForDebtCalc += currentDiscount;
+                        // For andre eiendeler, bruk den definerte verdivurderingsfaktoren
+                        // Sjekk om rabatten er et tall, ellers bruk 1 for 100% verdivurdering
+                        valuedAmount = assetValue * (typeof this.discounts[key] === 'number' ? this.discounts[key] : 1); 
                     }
-                    totalDiscount += currentDiscount;
+                    totalValuedWealth += valuedAmount;
                 });
                 
-                const netWealth = grossWealth - totalDiscount;
-                const debtReduction = grossWealth > 0 ? values.privateDebt * (discountForDebtCalc / grossWealth) : 0;
-                const deductibleDebt = Math.max(0, values.privateDebt - debtReduction);
+                // totalDiscount er differansen mellom bruttoformue og skattemessig formue
+                const totalDiscount = grossWealth - totalValuedWealth; 
+                
+                // Nettoformue er den skattemessige formuen
+                const netWealth = totalValuedWealth; 
+
+                // Fradragsberettiget gjeld er proporsjonal med skattemessig formue
+                const proportionalDebtShare = grossWealth > 0 ? totalValuedWealth / grossWealth : 0;
+                const deductibleDebt = values.privateDebt * proportionalDebtShare;
+
+                // Skattegrunnlaget er nettoformue minus fribeløp og fradragsberettiget gjeld
                 const taxableBase = Math.max(0, netWealth - taxFreeAllowance - deductibleDebt);
+                // Total formuesskatt beregnes basert på progressive satser
                 const totalWealthTax = (Math.min(taxableBase, highRateThreshold) * 0.01) + (Math.max(0, taxableBase - highRateThreshold) * 0.011);
                 
                 sharedData.taxAsPercentageOfGross = grossWealth > 0 ? (totalWealthTax / grossWealth) : 0;
@@ -381,6 +476,7 @@
                 this.updatePage1UI({grossWealth, totalDiscount, netWealth, deductibleDebt, taxFreeAllowance, taxableBase, totalWealthTax});
             },
             
+            // Oppdaterer visningselementene på side 1 med beregnede resultater.
             updatePage1UI: function(results) {
                 document.getElementById('gross-wealth').textContent = this.formatCurrency(results.grossWealth);
                 document.getElementById('total-discount').textContent = this.formatCurrency(results.totalDiscount);
@@ -392,83 +488,96 @@
                 document.getElementById('tax-as-percentage-of-gross').textContent = `${(sharedData.taxAsPercentageOfGross * 100).toFixed(2)} %`;
             },
 
+            // Oppdaterer tabellene på side 2 med kjøpekraftanalyse.
             updatePage2: function() {
                 const inflation = sharedData.inflationRate / 100;
                 const capitalGainsTax = 0.22;
                 const dividendTax = 0.378;
 
+                // Definerer ulike formuesskattscenarier
                 const wealthTaxRates = {
                     'Ingen': 0, 'Lav': 0.01, 'Høy': 0.011, 'Faktisk': sharedData.taxAsPercentageOfGross
                 };
 
-                const privateRates = {}, asRates = {};
+                const privateRates = {}; // Satser for privatpersoner
+                const asRates = {}; // Satser for Aksjeselskap (AS)
                 
+                // Beregn minimum nødvendig bankrente for hvert scenario
                 for (const [label, taxRate] of Object.entries(wealthTaxRates)) {
                     privateRates[label] = {
                         capital: capitalGainsTax, dividend: 0, wealth: taxRate, inflation: inflation,
+                        // Formel for minimum rente for privatpersoner
                         minInterest: ((inflation + taxRate) / (1 - capitalGainsTax)) * 100
                     };
                     asRates[label] = {
                         capital: capitalGainsTax, dividend: dividendTax, wealth: taxRate, inflation: inflation,
+                        // Formel for minimum rente for AS (tar hensyn til både kapitalgevinster og utbytteskatt)
                         minInterest: (((inflation + taxRate) / (1 - dividendTax)) / (1 - capitalGainsTax)) * 100
                     };
                 }
                 
+                // Fyller ut tabellene i UI
                 document.getElementById('private-person-table').innerHTML = this.generateRateTable('Privat', privateRates);
                 document.getElementById('as-table').innerHTML = this.generateRateTable('AS', asRates);
             },
             
+            // Genererer HTML-tabellen for visning av skattesatser og minimum nødvendig rente.
             generateRateTable: function(title, data) {
-                 const headers = Object.keys(data); // Ingen, Lav, Høy, Faktisk
-                 let tableHTML = `<h3 class="text-2xl font-semibold text-white mb-4">${title}</h3>`;
-                 
-                 tableHTML += `<div class="rate-table-header"><div></div>${headers.map(h => `<div class="rate-table-cell">${h}</div>`).join('')}</div>`;
+                const headers = Object.keys(data); 
+                let tableHTML = `<h3 class="text-base font-semibold text-white mb-1.5">${title}</h3>`; 
+                
+                // Tabellhode-rad
+                tableHTML += `<div class="rate-table-header"><div></div>${headers.map(h => `<div class="rate-table-cell">${h}</div>`).join('')}</div>`;
 
-                 const rows = [
-                     { label: 'Kapitalskatt', key: 'capital' },
-                     { label: 'Utbytteskatt', key: 'dividend' },
-                     { label: 'Formuesskatt', key: 'wealth' },
-                     { label: 'Inflasjon', key: 'inflation' },
-                 ];
+                // Data rader for Kapitalskatt, Utbytteskatt, Formuesskatt, Inflasjon
+                const rows = [
+                    { label: 'Kapitalskatt', key: 'capital' },
+                    { label: 'Utbytteskatt', key: 'dividend' },
+                    { label: 'Formuesskatt', key: 'wealth' },
+                    { label: 'Inflasjon', key: 'inflation' },
+                ];
 
-                 rows.forEach(row => {
-                     tableHTML += `<div class="rate-table-row">
+                rows.forEach(row => {
+                    tableHTML += `<div class="rate-table-row">
                         <div class="rate-table-row-label">${row.label}</div>
                         ${headers.map(h => `<div class="rate-table-cell">${(data[h][row.key] * 100).toFixed(2)} %</div>`).join('')}
-                     </div>`;
-                 });
-                 
-                 tableHTML += `<div class="rate-table-row rate-table-final-row">
+                    </div>`;
+                });
+                
+                // Siste rad for Minimum Bankrente
+                tableHTML += `<div class="rate-table-row rate-table-final-row">
                     <div class="rate-table-row-label">Minimum bankrente</div>
                     ${headers.map(h => `<div class="rate-table-cell">${data[h].minInterest.toFixed(2)} %</div>`).join('')}
-                 </div>`;
+                </div>`;
 
-                 return tableHTML;
+                return tableHTML;
             },
 
+            // Henter alle gjeldende inputverdier fra sliders og tekstfelter.
             getValues: function() {
                 const values = { assets: {} };
-                // Get values from sliders
+                // Henter verdier fra sliders for eiendeler
                 this.assetsConfig.forEach(asset => {
                     const slider = document.getElementById(asset.id);
                     if (slider) {
                         values.assets[asset.id] = parseFloat(slider.value);
                     }
                 });
-                // Get values from text inputs
+                // Henter verdier fra tekstinput, parser dem til tall
                 values.privateDebt = this.parseNumber(document.getElementById('private-debt').value);
-                values.primaryResidenceThreshold = this.parseNumber(document.getElementById('primary-residence-threshold').value);
-                values.inflationRate = this.parseNumber(document.getElementById('inflation-rate').value, true);
+                values.inflationRate = this.parseNumber(document.getElementById('inflation-rate').value, true); 
                 return values;
             },
             
+            // Formaterer et nummerinput (f.eks. legger til tusenskillere) og utløser ny beregning.
             formatAndRecalculate: function(element) {
                 const isFloat = element.id === 'inflation-rate';
                 const numericValue = this.parseNumber(element.value, isFloat);
                 element.value = isFloat ? String(numericValue) : this.formatNumber(numericValue);
-                this.calculateAll();
+                this.calculateAll(); 
             },
 
+            // Parser en streng til et tall, håndterer lokalespesifikke skilletegn.
             parseNumber: (str, isFloat = false) => {
                 if (typeof str !== 'string') return isNaN(str) ? 0 : str;
                 const cleaned = str.replace(/[^\d,.]/g, '').replace(',', '.');
@@ -476,10 +585,13 @@
                 return isNaN(val) ? 0 : val;
             },
             
+            // Formaterer et tall med norske lokaler tusenskillere.
             formatNumber: (num) => new Intl.NumberFormat('nb-NO').format(isNaN(num) ? 0 : num),
+            // Formaterer et tall som norske kroner valuta, uten desimaler.
             formatCurrency: (num) => new Intl.NumberFormat('nb-NO', { style: 'currency', currency: 'NOK', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(isNaN(num) ? 0 : num),
         };
         
+        // Initialiserer applikasjonen når DOM er fullastet.
         WealthTaxApp.init();
     });
     </script>
