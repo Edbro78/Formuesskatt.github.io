@@ -1,0 +1,182 @@
+/* --- Generelle Stiler --- */
+html, body {
+    height: 100%; /* Sikrer at html og body tar hele viewport-høyden */
+    margin: 0;
+    overflow-x: hidden; /* Forhindrer horisontal scrollbar */
+    overflow-y: hidden; /* Forhindrer vertikal scrollbar på hovedsiden, innhold i bokser kan scrolle om nødvendig */
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #0f172a; /* slate-900 */
+    color: #E5E7EB; /* light-text */
+}
+
+/* --- Sidenavigasjon --- */
+.page {
+    display: none;
+    height: 100%; /* Sikrer at hver side tar full høyde */
+}
+.page.active {
+    display: block;
+}
+
+/* --- Dashboard Spesifikke Stiler --- */
+.dashboard-container {
+    --dark-blue: #1A2A47;
+    --accent-blue-light: #60A5FA;
+    --accent-blue-vibrant: #00A9E0;
+    --card-bg: #24385B;
+    --light-text: #E5E7EB;
+    --medium-text: #CBD5E1;
+    --border-color: #364A6E;
+    background-color: var(--dark-blue);
+    padding-top: 0.1rem; 
+    padding-bottom: 0.1rem; 
+    flex-grow: 1; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: flex-start; 
+    height: 100%; /* Tar full høyde av foreldreelementet (body) */
+}
+@media (min-width: 1024px) { /* lg breakpoint */
+    .dashboard-container {
+        padding-top: 0.2rem; 
+        padding-bottom: 0.2rem; 
+    }
+}
+
+/* Stil for hovedresultatverdiene */
+.output-value {
+    font-size: 1.8rem; /* Større font for å fylle plassen bedre (original i forrige svar) */
+    font-weight: 700;
+    color: var(--accent-blue-vibrant);
+    word-break: break-word;
+}
+
+.output-label {
+    font-size: 0.75rem; /* Større font for bedre lesbarhet (original i forrige svar) */
+    color: var(--medium-text);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Felles stil for nummerinput */
+input[type="text"].asset-input {
+    -moz-appearance: textfield;
+    background-color: #1e293b; /* slate-800 */
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem; 
+    padding: 0.1rem 0.2rem; /* Ytterligere redusert padding for å gjøre feltene lavere */
+    color: var(--light-text);
+    width: 100%;
+    font-size: 0.6rem; /* Ytterligere redusert fontstørrelse */
+}
+input[type="text"].asset-input:focus {
+    outline: none;
+    border-color: var(--accent-blue-light);
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.5);
+}
+input[type="text"].asset-input::placeholder {
+    color: #475569; /* slate-600 */
+}
+
+/* --- Slider stiler --- */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 2px; /* Ytterligere redusert høyde på slideren */
+    background: #1e293b; /* slate-800 */
+    border-radius: 3px; 
+    outline: none;
+    transition: background 0.3s, opacity 0.2s;
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 10px; /* Ytterligere redusert thumb-størrelse */
+    height: 10px; /* Ytterligere redusert thumb-størrelse */
+    background: var(--accent-blue-light);
+    cursor: pointer;
+    border-radius: 50%;
+    border: 1px solid var(--dark-blue); 
+    margin-top: -4px; /* Juster for å sentrere thumb på den tynnere slideren */
+}
+input[type="range"]::-moz-range-thumb {
+    width: 10px; 
+    height: 10px; 
+    background: var(--accent-blue-light);
+    cursor: pointer;
+    border-radius: 50%;
+    border: 1px solid var(--dark-blue);
+}
+
+/* Side 2 Tabellstiler */
+.rate-table-container {
+    background-color: var(--card-bg);
+    padding: 0.4rem; 
+    border-radius: 0.75rem;
+}
+.rate-table-as {
+    background-color: #1e3a8a; 
+}
+.rate-table-header {
+    display: grid;
+    /* Justerer grid-kolonner for bedre passform på mindre effektive oppløsninger */
+    grid-template-columns: minmax(65px, 1.5fr) repeat(4, minmax(40px, 1fr)); 
+    gap: 0.2rem; 
+    color: var(--medium-text);
+    font-weight: 600;
+    padding-bottom: 0.2rem; 
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.65rem; 
+    text-align: right; 
+}
+.rate-table-header > div:first-child {
+    text-align: left; 
+}
+.rate-table-row {
+    display: grid;
+    /* Justerer grid-kolonner for bedre passform på mindre effektive oppløsninger */
+    grid-template-columns: minmax(65px, 1.5fr) repeat(4, minmax(40px, 1fr)); 
+    gap: 0.2rem; 
+    padding: 0.25rem 0; 
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.65rem; 
+}
+.rate-table-row:last-child {
+    border-bottom: none;
+}
+.rate-table-row-label {
+    font-weight: 500;
+    color: var(--light-text);
+    text-align: left; 
+}
+.rate-table-cell {
+    text-align: right;
+}
+.rate-table-final-row {
+    font-size: 0.7rem; 
+    font-weight: 700;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.2);
+    margin: 0 -0.4rem; 
+    padding: 0.3rem 0.4rem; 
+}
+/* Custom scrollbar for better appearance on overflow content */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #1e293b;
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #60A5FA;
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #3b82f6;
+} 
