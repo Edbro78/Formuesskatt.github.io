@@ -1,285 +1,848 @@
-document.addEventListener('DOMContentLoaded', function() {
-    
-    const sharedData = {
-        taxAsPercentageOfGross: 0,
-        inflationRate: 3.0,
+// Remove all imports and use global variables
+const { useState, useMemo, useCallback, useEffect } = React;
+const { createRoot } = ReactDOM;
+
+// Chart.js is already loaded globally
+const {
+  Chart: ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend: ChartJsLegend,
+  PointElement,
+  LineElement,
+  Filler,
+} = Chart;
+
+// Custom Chart components using Chart.js directly
+const Bar = ({ data, options }) => {
+    const canvasRef = React.useRef(null);
+    const chartRef = React.useRef(null);
+
+    React.useEffect(() => {
+        if (canvasRef.current && typeof Chart !== 'undefined') {
+            // Destroy existing chart
+            if (chartRef.current) {
+                chartRef.current.destroy();
+            }
+
+            // Create new chart
+            const ctx = canvasRef.current.getContext('2d');
+            chartRef.current = new Chart(ctx, {
+                type: 'bar',
+                data: data,
+                options: options
+            });
+        }
+
+        return () => {
+            if (chartRef.current) {
+                chartRef.current.destroy();
+            }
+        };
+    }, [data, options]);
+
+    return React.createElement('canvas', { ref: canvasRef });
+};
+
+const Line = ({ data, options }) => {
+    const canvasRef = React.useRef(null);
+    const chartRef = React.useRef(null);
+
+    React.useEffect(() => {
+        if (canvasRef.current && typeof Chart !== 'undefined') {
+            // Destroy existing chart
+            if (chartRef.current) {
+                chartRef.current.destroy();
+            }
+
+            // Create new chart
+            const ctx = canvasRef.current.getContext('2d');
+            chartRef.current = new Chart(ctx, {
+                type: 'line',
+                data: data,
+                options: options
+            });
+        }
+
+        return () => {
+            if (chartRef.current) {
+                chartRef.current.destroy();
+            }
+        };
+    }, [data, options]);
+
+    return React.createElement('canvas', { ref: canvasRef });
+};
+
+// --- From constants.ts ---
+const START_YEAR = new Date().getFullYear();
+
+const CHART_COLORS = {
+    hovedstol: '#4A6D8C', // Mørk, dempet blå/grå
+    avkastning: '#88CCEE', // Lysere blå
+    sparing: '#3388CC', // Hovedblå
+    utbetaling_netto: '#005599', // Mørkere blå for uttak
+    utbetaling_skatt: '#FFD700', // Yellow for tax on events
+    event_total_color: '#CC0000', // Rød
+    renteskatt: '#FFD700', // Yellow for tax on events
+    skatt2: '#FFD700', // Yellow for tax on events
+    aksjeandel: '#66CCDD', // Teal
+    renteandel: '#A9BCCD', // Lys grå-blå
+    innskutt_kapital: '#3388CC' // Hovedblå
+};
+
+const LEGEND_DATA = [
+    { label: 'Hovedstol', color: CHART_COLORS.hovedstol },
+    { label: 'Avkastning', color: CHART_COLORS.avkastning },
+    { label: 'Årlig sparing', color: CHART_COLORS.sparing },
+    { label: 'Hendelser', color: CHART_COLORS.event_total_color },
+    { label: 'Netto utbetaling', color: CHART_COLORS.utbetaling_netto },
+    { label: 'Skatt på årlige utbetalinger', color: CHART_COLORS.utbetaling_skatt },
+    { label: 'Skatt på hendelser', color: CHART_COLORS.skatt2 },
+    { label: 'Løpende renteskatt', color: CHART_COLORS.renteskatt }
+];
+
+const INITIAL_APP_STATE = {
+    initialPortfolioSize: 5000000,
+    investedCapital: 2500000,
+    investmentYears: 10,
+    payoutYears: 10,
+    desiredAnnualPayoutAfterTax: 1000000,
+    initialStockAllocation: 65,
+    stockReturnRate: 8.0,
+    bondReturnRate: 5.0,
+    shieldingRate: 3.9,
+    taxRate: 37.84,
+    annualSavings: 0,
+    events: [],
+    taperingOption: 'none',
+    deferredBondTax: false, // Ny state for utsatt skatt på renter
+    investorType: 'Privat', // Ny state for AS eller Privat
+    manualBondTaxRate: 22.0, // Ny state for manuell kapitalskatt
+    manualStockTaxRate: 37.8, // Ny state for manuell aksjebeskatning
+    desiredAnnualConsumptionPayout: 800000, // Ny state for ønsket årlig uttak til forbruk
+    desiredAnnualWealthTaxPayout: 200000, // Ny state for ønsket årlig uttak til formuesskatt
+};
+
+const STOCK_ALLOCATION_OPTIONS = [
+    { label: '100% Renter', value: 0 },
+    { label: '20% Aksjer', value: 20 },
+    { label: '45% Aksjer', value: 45 },
+    { label: '55% Aksjer', value: 55 },
+    { label: '65% Aksjer', value: 65 },
+    { label: '85% Aksjer', value: 85 },
+    { label: '100% Aksjer', value: 100 }
+];
+
+const TAPERING_OPTIONS = [
+    { id: 'tapering-none', value: 'none', label: 'Ingen', sublabel: '' },
+    { id: 'tapering-5', value: '5%', label: '5% ', sublabel: '' },
+    { id: 'tapering-10', value: '10%', label: '10% ', sublabel: '' },
+    { id: 'tapering-15', value: '15%', label: '15% ', sublabel: '' }
+];
+
+// --- From services/prognosisCalculator.ts ---
+const populateAnnualStockPercentages = (state) => {
+    const totalSimulatedYears = state.investmentYears + state.payoutYears;
+    const annualStockPercentages = [];
+
+    for (let index = 0; index < totalSimulatedYears; index++) {
+        const isInvestmentYear = index < state.investmentYears;
+        const isPayoutYear = index >= state.investmentYears;
+        let currentPercentage = 0;
+
+        if (isInvestmentYear) {
+            currentPercentage = state.initialStockAllocation;
+        } else if (isPayoutYear) {
+            if (state.taperingOption !== 'none') {
+                const taperRate = parseFloat(state.taperingOption.replace('%', '')) / 100;
+                const payoutYearIndex = index - state.investmentYears;
+
+                const basePercentageForTapering = state.investmentYears > 0 ? annualStockPercentages[state.investmentYears - 1] : state.initialStockAllocation;
+                const reductionAmount = payoutYearIndex * (taperRate * 100);
+                currentPercentage = Math.max(0, basePercentageForTapering - reductionAmount);
+            } else {
+                currentPercentage = state.initialStockAllocation;
+            }
+        }
+        annualStockPercentages.push(currentPercentage);
+    }
+    return annualStockPercentages;
+};
+
+const calculatePrognosis = (state) => {
+    const labels = [];
+    const data = {
+        hovedstol: [], avkastning: [], sparing: [], nettoUtbetaling: [],
+        skatt: [], renteskatt: [], event_total: [], skatt2: [],
+        annualStockPercentages: [], annualBondPercentages: [], investedCapitalHistory: []
     };
 
-    function showPage(pageId) {
-        document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active');
-        if (pageId === 'page2') {
-            WealthTaxApp.updatePage2();
-        }
-    }
-    
-    // Hendelseslyttere for sidenavigasjonsknapper
-    document.getElementById('goToPage2Btn').addEventListener('click', () => showPage('page2'));
-    document.getElementById('goToPage1Btn').addEventListener('click', () => showPage('page1'));
-    
-    // --- APPLIKASJONSOPPSETT ---
-    const WealthTaxApp = {
-        // Konfigurasjon for ulike eiendelstyper, inkludert etiketter, startverdier og sliderområder.
-        assetsConfig: [
-            { id: 'primary-residence', label: 'Primærbolig', value: 20000000, min: 0, max: 50000000, step: 100000 },
-            { id: 'holiday-home', label: 'Fritidseiendom', value: 3000000, min: 0, max: 20000000, step: 50000 },
-            { id: 'land-plot', label: 'Tomt', value: 1000000, min: 0, max: 10000000, step: 50000 },
-            { id: 'car-boat', label: 'Bil / Båt', value: 500000, min: 0, max: 5000000, step: 10000 },
-            { id: 'limited-company', label: 'Aksjeselskap (AS)', value: 10000000, min: 0, max: 100000000, step: 100000 },
-            { id: 'private-portfolio', label: 'Privat portefølje (ASK)', value: 2000000, min: 0, max: 50000000, step: 100000 },
-            { id: 'secondary-residence', label: 'Sekundærbolig', value: 4000000, min: 0, max: 30000000, step: 100000 },
-            { id: 'bank-deposits', label: 'Bankinnskudd', value: 1500000, min: 0, max: 10000000, step: 50000 },
-            { id: 'operating-assets', label: 'Driftsmidler', value: 0, min: 0, max: 20000000, step: 50000 },
-        ],
-        // Rabattsatser/verdivurderingsfaktorer for ulike eiendelstyper.
-        // Disse representerer hvor mye av eiendelens verdi som medregnes i formuegrunnlaget.
-        discounts: {
-            // For primærbolig: 25% verdivurdering (dvs. 75% rabatt) opp til terskel på 10M, og 70% verdivurdering (dvs. 30% rabatt) over terskel.
-            'primary-residence': { valuation_under_threshold: 0.25, valuation_over_threshold: 0.70 },
-            'holiday-home': 0.70, // 70% verdivurdering
-            'land-plot': 0.70,    // 70% verdivurdering
-            'car-boat': 1,        // 100% verdivurdering (0% rabatt)
-            'limited-company': 0.80, // 80% verdivurdering (20% rabatt)
-            'private-portfolio': 0.80, // 80% verdivurdering (20% rabatt)
-            'secondary-residence': 1, // 100% verdivurdering (0% rabatt)
-            'bank-deposits': 1,      // 100% verdivurdering (0% rabatt)
-            'operating-assets': 0.70, // 70% verdivurdering (30% rabatt)
-        },
-        // Applikasjonsstatus, f.eks. antall personer for skatteberegninger.
-        state: { personCount: 1 },
+    let currentPortfolioValue = state.initialPortfolioSize;
+    let taxFreeCapitalRemaining = state.investedCapital;
+    let deferredEventTax = 0; // Tax from an event to be paid NEXT year.
+    let deferredBondTax = 0; // Bond tax to be paid NEXT year (when not using deferred mode)
+    let accumulatedBondTax = 0; // Accumulated bond tax when deferred mode is enabled
+
+    const stockReturnRate = state.stockReturnRate / 100;
+    const bondReturnRate = state.bondReturnRate / 100;
+    const shieldingRate = state.shieldingRate / 100;
+    const taxRate = state.manualStockTaxRate / 100; // Bruker manuell aksjebeskatning
+    const bondTaxRate = state.manualBondTaxRate / 100; // Bruker manuell kapitalskatt
+
+    const annualStockPercentages = populateAnnualStockPercentages(state);
+    const totalSimulatedYears = state.investmentYears + state.payoutYears;
+
+    for (let i = 0; i < totalSimulatedYears; i++) {
+        const year = START_YEAR + i;
+        labels.push(year.toString());
+
+        const startOfYearPortfolioValue = currentPortfolioValue;
         
-        // Initialiserer applikasjonen: oppretter eiendelsinput-sliders og fester hendelseslyttere.
-        init: function() {
-            this.createAssetInputs();
-            this.attachEventListeners();
-            this.calculateAll(); // Utfører første beregning
-        },
+        // --- START OF YEAR ---
 
-        // Oppretter dynamisk input-sliders for hver eiendel definert i assetsConfig.
-        createAssetInputs: function() {
-            const container = document.getElementById('assets-container');
-            container.innerHTML = ''; // Tømmer eksisterende innhold
-            this.assetsConfig.forEach(asset => {
-                const div = document.createElement('div');
-                div.className = 'asset-slider-group';
-                div.innerHTML = `
-                    <div class="flex justify-between items-baseline mb-0"> 
-                        <label for="${asset.id}" class="text-xs font-medium text-slate-300">${asset.label}</label>
-                        <span id="${asset.id}-value" class="text-xs font-semibold text-[var(--accent-blue-light)]">${this.formatCurrency(asset.value)}</span> 
-                    </div>
-                    <input type="range" id="${asset.id}" min="${asset.min}" max="${asset.max}" step="${asset.step}" value="${asset.value}">
-                `;
-                container.appendChild(div);
-            });
-        },
+        // 1. Pay deferred tax from LAST year's event and bond tax
+        const taxToPayThisYear = deferredEventTax + deferredBondTax;
+        currentPortfolioValue -= taxToPayThisYear;
+        deferredEventTax = 0; // Reset for the current year's calculation.
+        deferredBondTax = 0; // Reset for the current year's calculation.
 
-        // Fester hendelseslyttere til input-elementer og personantallknapper.
-        attachEventListeners: function() {
-            // Hendelseslytter for inputendringer på side 1 (sliders og tekstinput).
-            document.getElementById('page1').addEventListener('input', (e) => {
-                if (e.target.type === 'range') {
-                    // Oppdater visningsverdi for sliders
-                    const valueSpan = document.getElementById(`${e.target.id}-value`);
-                    if (valueSpan) {
-                        valueSpan.textContent = this.formatCurrency(parseFloat(e.target.value));
-                    }
-                    this.calculateAll(); // Beregn på nytt når slider endres
-                } else if (e.target.matches('.asset-input, #private-debt')) { 
-                    // Formater og beregn på nytt for tekstinput
-                    this.formatAndRecalculate(e.target);
-                }
-            });
+        // 2. Grow tax-free capital with shielding rate
+        taxFreeCapitalRemaining *= (1 + shieldingRate);
 
-            // Hendelseslytter for inflasjonsrate-input på side 2.
-            document.getElementById('inflation-rate').addEventListener('input', (e) => {
-                this.formatAndRecalculate(e.target);
-                this.updatePage2(); // Oppdater side 2-beregningene når inflasjonsraten endres
-            });
+        // 3. Handle inflows (savings and positive events)
+        const isInvestmentYear = i < state.investmentYears;
+        let totalInflow = isInvestmentYear ? state.annualSavings : 0;
+        let eventWithdrawal = 0;
+        let netEventAmountForChart = 0;
 
-            // Hendelseslytter for personantallknapper.
-            document.getElementById('person-count').addEventListener('click', (e) => {
-                if (e.target.matches('.person-btn')) {
-                    this.state.personCount = parseInt(e.target.dataset.value, 10);
-                    // Veksle aktiv knappestil
-                    document.querySelectorAll('.person-btn').forEach(btn => {
-                        btn.classList.toggle('bg-blue-600', btn === e.target);
-                        btn.classList.toggle('text-white', btn === e.target);
-                        btn.classList.toggle('bg-slate-700', btn !== e.target);
-                        btn.classList.toggle('text-slate-300', btn !== e.target);
-                    });
-                    this.calculateAll(); // Beregn på nytt basert på nytt personantall
-                }
-            });
-        },
-        
-        // Beregner alle formuesskattkomponenter basert på gjeldende inputverdier.
-        calculateAll: function() {
-            const values = this.getValues();
-            // Fast terskel for primærbolig (tidligere input-felt)
-            const primaryResidenceFixedThreshold = 10000000; 
-
-            // Bestemmer skattefritt beløp basert på personantall
-            const taxFreeAllowance = this.state.personCount === 1 ? 1700000 : 3400000;
-            // Bestemmer terskel for høy sats basert på personantall
-            const highRateThreshold = this.state.personCount === 1 ? 20000000 : 40000000;
-            // Summerer alle eiendelsverdier for å få bruttoformue
-            const grossWealth = Object.values(values.assets).reduce((sum, val) => sum + val, 0);
-
-            let totalValuedWealth = 0; // Summen av eiendeler etter verdivurdering (skattemessig formue)
-
-            Object.keys(values.assets).forEach(key => {
-                const assetValue = values.assets[key];
-                let valuedAmount = assetValue; 
-
-                if (key === 'primary-residence') {
-                    // Primærbolig verdivurderes til 25% opp til terskel, og 70% over terskel
-                    const valFactors = this.discounts[key];
-                    valuedAmount = (Math.min(assetValue, primaryResidenceFixedThreshold) * valFactors.valuation_under_threshold) +
-                                   (Math.max(0, assetValue - primaryResidenceFixedThreshold) * valFactors.valuation_over_threshold);
+        state.events.forEach(event => {
+            if (year >= event.startAar && year <= event.sluttAar) {
+                netEventAmountForChart += event.belop;
+                if (event.belop > 0) {
+                    totalInflow += event.belop;
                 } else {
-                    // For andre eiendeler, bruk den definerte verdivurderingsfaktoren
-                    // Sjekk om rabatten er et tall, ellers bruk 1 for 100% verdivurdering
-                    valuedAmount = assetValue * (typeof this.discounts[key] === 'number' ? this.discounts[key] : 1); 
+                    eventWithdrawal += event.belop; // Negative value
                 }
-                totalValuedWealth += valuedAmount;
-            });
+            }
+        });
+        currentPortfolioValue += totalInflow;
+        taxFreeCapitalRemaining += totalInflow;
+
+        // 4. Calculate investment growth and running bond tax
+        const annualStockPercentage = annualStockPercentages[i];
+        const annualBondPercentage = 100 - annualStockPercentage;
+        let totalGrossReturn = 0;
+        let annualBondTaxAmount = 0;
+
+        if (currentPortfolioValue > 0) {
+            const stockValue = currentPortfolioValue * (annualStockPercentage / 100);
+            const bondValue = currentPortfolioValue * (annualBondPercentage / 100);
+            const grossStockReturn = stockValue * stockReturnRate;
+            const grossBondReturn = bondValue * bondReturnRate;
+            totalGrossReturn = grossStockReturn + grossBondReturn;
             
-            // totalDiscount er differansen mellom bruttoformue og skattemessig formue
-            const totalDiscount = grossWealth - totalValuedWealth; 
-            
-            // Nettoformue er den skattemessige formuen
-            const netWealth = totalValuedWealth; 
-
-            // Fradragsberettiget gjeld er proporsjonal med skattemessig formue
-            const proportionalDebtShare = grossWealth > 0 ? totalValuedWealth / grossWealth : 0;
-            const deductibleDebt = values.privateDebt * proportionalDebtShare;
-
-            // Skattegrunnlaget er nettoformue minus fribeløp og fradragsberettiget gjeld
-            const taxableBase = Math.max(0, netWealth - taxFreeAllowance - deductibleDebt);
-            // Total formuesskatt beregnes basert på progressive satser
-            const totalWealthTax = (Math.min(taxableBase, highRateThreshold) * 0.01) + (Math.max(0, taxableBase - highRateThreshold) * 0.011);
-            
-            sharedData.taxAsPercentageOfGross = grossWealth > 0 ? (totalWealthTax / grossWealth) : 0;
-            sharedData.inflationRate = values.inflationRate;
-
-            this.updatePage1UI({grossWealth, totalDiscount, netWealth, deductibleDebt, taxFreeAllowance, taxableBase, totalWealthTax});
-        },
-        
-        // Oppdaterer visningselementene på side 1 med beregnede resultater.
-        updatePage1UI: function(results) {
-            document.getElementById('gross-wealth').textContent = this.formatCurrency(results.grossWealth);
-            document.getElementById('total-discount').textContent = this.formatCurrency(results.totalDiscount);
-            document.getElementById('net-wealth').textContent = this.formatCurrency(results.netWealth);
-            document.getElementById('deductible-debt').textContent = this.formatCurrency(results.deductibleDebt);
-            document.getElementById('tax-free-allowance').textContent = this.formatCurrency(results.taxFreeAllowance);
-            document.getElementById('taxable-base').textContent = this.formatCurrency(results.taxableBase);
-            document.getElementById('total-wealth-tax').textContent = this.formatCurrency(results.totalWealthTax);
-            document.getElementById('tax-as-percentage-of-gross').textContent = `${(sharedData.taxAsPercentageOfGross * 100).toFixed(2)} %`;
-        },
-
-        // Oppdaterer tabellene på side 2 med kjøpekraftanalyse.
-        updatePage2: function() {
-            const inflation = sharedData.inflationRate / 100;
-            const capitalGainsTax = 0.22;
-            const dividendTax = 0.378;
-
-            // Definerer ulike formuesskattscenarier
-            const wealthTaxRates = {
-                'Ingen': 0, 'Lav': 0.01, 'Høy': 0.011, 'Faktisk': sharedData.taxAsPercentageOfGross
-            };
-
-            const privateRates = {}; // Satser for privatpersoner
-            const asRates = {}; // Satser for Aksjeselskap (AS)
-            
-            // Beregn minimum nødvendig bankrente for hvert scenario
-            for (const [label, taxRate] of Object.entries(wealthTaxRates)) {
-                privateRates[label] = {
-                    capital: capitalGainsTax, dividend: 0, wealth: taxRate, inflation: inflation,
-                    // Formel for minimum rente for privatpersoner
-                    minInterest: ((inflation + taxRate) / (1 - capitalGainsTax)) * 100
-                };
-                asRates[label] = {
-                    capital: capitalGainsTax, dividend: dividendTax, wealth: taxRate, inflation: inflation,
-                    // Formel for minimum rente for AS (tar hensyn til både kapitalgevinster og utbytteskatt)
-                    minInterest: (((inflation + taxRate) / (1 - dividendTax)) / (1 - capitalGainsTax)) * 100
-                };
+            // Handle bond tax based on deferred setting
+            if (state.deferredBondTax) {
+                // Accumulate bond tax instead of paying it immediately
+                accumulatedBondTax += grossBondReturn * bondTaxRate;
+                annualBondTaxAmount = 0; // No immediate bond tax
+            } else {
+                // Defer bond tax to next year (new behavior)
+                deferredBondTax += grossBondReturn * bondTaxRate;
+                annualBondTaxAmount = 0; // No immediate bond tax
             }
             
-            // Fyller ut tabellene i UI
-            document.getElementById('private-person-table').innerHTML = this.generateRateTable('Privat', privateRates);
-            document.getElementById('as-table').innerHTML = this.generateRateTable('AS', asRates);
-        },
+            currentPortfolioValue += totalGrossReturn - annualBondTaxAmount;
+        }
+
+        // 5. Handle outflows and calculate taxes
+        let annualWithdrawalTaxAmount = 0;
+        let annualNetWithdrawalAmountForChart = 0;
         
-        // Genererer HTML-tabellen for visning av skattesatser og minimum nødvendig rente.
-        generateRateTable: function(title, data) {
-            const headers = Object.keys(data); 
-            let tableHTML = `<h3 class="text-base font-semibold text-white mb-1.5">${title}</h3>`; 
+        // 5a. Regular annual payouts (taxed in the same year)
+        const isOrdinaryPayoutYear = (i >= state.investmentYears);
+        const totalDesiredPayout = state.desiredAnnualConsumptionPayout + state.desiredAnnualWealthTaxPayout;
+        if (isOrdinaryPayoutYear && totalDesiredPayout > 0) {
+            let desiredNet = totalDesiredPayout;
+            let fromTaxFree = Math.min(desiredNet, taxFreeCapitalRemaining);
+            taxFreeCapitalRemaining -= fromTaxFree;
             
-            // Tabellhode-rad
-            tableHTML += `<div class="rate-table-header"><div></div>${headers.map(h => `<div class="rate-table-cell">${h}</div>`).join('')}</div>`;
+            const remainingDesiredNet = desiredNet - fromTaxFree;
+            let grossWithdrawal = fromTaxFree;
 
-            // Data rader for Kapitalskatt, Utbytteskatt, Formuesskatt, Inflasjon
-            const rows = [
-                { label: 'Kapitalskatt', key: 'capital' },
-                { label: 'Utbytteskatt', key: 'dividend' },
-                { label: 'Formuesskatt', key: 'wealth' },
-                { label: 'Inflasjon', key: 'inflation' },
-            ];
-
-            rows.forEach(row => {
-                tableHTML += `<div class="rate-table-row">
-                    <div class="rate-table-row-label">${row.label}</div>
-                    ${headers.map(h => `<div class="rate-table-cell">${(data[h][row.key] * 100).toFixed(2)} %</div>`).join('')}
-                </div>`;
-            });
-            
-            // Siste rad for Minimum Bankrente
-            tableHTML += `<div class="rate-table-row rate-table-final-row">
-                <div class="rate-table-row-label">Minimum bankrente</div>
-                ${headers.map(h => `<div class="rate-table-cell">${data[h].minInterest.toFixed(2)} %</div>`).join('')}
-            </div>`;
-
-            return tableHTML;
-        },
-
-        // Henter alle gjeldende inputverdier fra sliders og tekstfelter.
-        getValues: function() {
-            const values = { assets: {} };
-            // Henter verdier fra sliders for eiendeler
-            this.assetsConfig.forEach(asset => {
-                const slider = document.getElementById(asset.id);
-                if (slider) {
-                    values.assets[asset.id] = parseFloat(slider.value);
+            if (remainingDesiredNet > 0) {
+                let grossNeededFromTaxable;
+                
+                if (state.investorType === 'AS') {
+                    // AS: All withdrawals taxed as dividends (37.8%) regardless of allocation
+                    const totalTax = remainingDesiredNet * taxRate;
+                    grossNeededFromTaxable = remainingDesiredNet + totalTax;
+                    annualWithdrawalTaxAmount += totalTax;
+                } else if (state.deferredBondTax) {
+                    // Privat with deferred bond tax: Calculate tax based on current allocation
+                    const stockPortion = remainingDesiredNet * (annualStockPercentage / 100);
+                    const bondPortion = remainingDesiredNet * (annualBondPercentage / 100);
+                    
+                    const stockTax = stockPortion * taxRate;
+                    const bondTax = bondPortion * bondTaxRate;
+                    const totalTax = stockTax + bondTax;
+                    
+                    grossNeededFromTaxable = remainingDesiredNet + totalTax;
+                    annualWithdrawalTaxAmount += totalTax;
+                } else {
+                    // Privat without deferred bond tax: only tax the stock portion since bond tax is already paid
+                    const stockPortion = remainingDesiredNet * (annualStockPercentage / 100);
+                    const bondPortion = remainingDesiredNet * (annualBondPercentage / 100);
+                    
+                    // Only tax the stock portion, bond portion is already taxed
+                    const stockTax = stockPortion * taxRate;
+                    const totalTax = stockTax; // No additional bond tax since it's already paid
+                    
+                    grossNeededFromTaxable = remainingDesiredNet + totalTax;
+                    annualWithdrawalTaxAmount += totalTax;
                 }
-            });
-            // Henter verdier fra tekstinput, parser dem til tall
-            values.privateDebt = this.parseNumber(document.getElementById('private-debt').value);
-            values.inflationRate = this.parseNumber(document.getElementById('inflation-rate').value, true); 
-            return values;
-        },
-        
-        // Formaterer et nummerinput (f.eks. legger til tusenskillere) og utløser ny beregning.
-        formatAndRecalculate: function(element) {
-            const isFloat = element.id === 'inflation-rate';
-            const numericValue = this.parseNumber(element.value, isFloat);
-            element.value = isFloat ? String(numericValue) : this.formatNumber(numericValue);
-            this.calculateAll(); 
-        },
+                
+                grossWithdrawal += grossNeededFromTaxable;
+            }
+            currentPortfolioValue -= grossWithdrawal;
+            annualNetWithdrawalAmountForChart += desiredNet;
+        }
 
-        // Parser en streng til et tall, håndterer lokalespesifikke skilletegn.
-        parseNumber: (str, isFloat = false) => {
-            if (typeof str !== 'string') return isNaN(str) ? 0 : str;
-            const cleaned = str.replace(/[^\d,.]/g, '').replace(',', '.');
-            const val = isFloat ? parseFloat(cleaned) : parseInt(cleaned, 10);
-            return isNaN(val) ? 0 : val;
-        },
+        // 5b. Event withdrawals (tax is DEFERRED to next year)
+        if (eventWithdrawal < 0) {
+            const withdrawalAmount = Math.abs(eventWithdrawal);
+            
+            currentPortfolioValue -= withdrawalAmount; // Reduce portfolio by the withdrawal amount now
+
+            let fromTaxFree = Math.min(withdrawalAmount, taxFreeCapitalRemaining);
+            taxFreeCapitalRemaining -= fromTaxFree;
+
+            const taxableWithdrawal = withdrawalAmount - fromTaxFree;
+            
+            if (taxableWithdrawal > 0) {
+                // Calculate tax, but store it in the deferred variable to be paid NEXT year.
+                if (state.investorType === 'AS') {
+                    // AS: All withdrawals taxed as dividends (37.8%) regardless of allocation
+                    deferredEventTax = taxableWithdrawal * taxRate;
+                } else if (state.deferredBondTax) {
+                    // Privat with deferred bond tax: Calculate tax based on current allocation
+                    const stockPortion = taxableWithdrawal * (annualStockPercentage / 100);
+                    const bondPortion = taxableWithdrawal * (annualBondPercentage / 100);
+                    
+                    const stockTax = stockPortion * taxRate;
+                    const bondTax = bondPortion * bondTaxRate;
+                    deferredEventTax = stockTax + bondTax;
+                } else {
+                    // Privat without deferred bond tax: only tax the stock portion since bond tax is already paid
+                    const stockPortion = taxableWithdrawal * (annualStockPercentage / 100);
+                    const bondPortion = taxableWithdrawal * (annualBondPercentage / 100);
+                    
+                    // Only tax the stock portion, bond portion is already taxed
+                    const stockTax = stockPortion * taxRate;
+                    deferredEventTax = stockTax; // No additional bond tax since it's already paid
+                }
+            }
+        }
         
-        // Formaterer et tall med norske lokaler tusenskillere.
-        formatNumber: (num) => new Intl.NumberFormat('nb-NO').format(isNaN(num) ? 0 : num),
-        // Formaterer et tall som norske kroner valuta, uten desimaler.
-        formatCurrency: (num) => new Intl.NumberFormat('nb-NO', { style: 'currency', currency: 'NOK', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(isNaN(num) ? 0 : num),
+        // --- END OF YEAR ---
+
+        // 6. Push data to arrays for charting
+        data.hovedstol.push(Math.round(startOfYearPortfolioValue));
+        data.avkastning.push(Math.round(totalGrossReturn));
+        data.sparing.push(Math.round(isInvestmentYear ? state.annualSavings : 0));
+        data.event_total.push(Math.round(netEventAmountForChart));
+        data.nettoUtbetaling.push(Math.round(-annualNetWithdrawalAmountForChart));
+        data.skatt.push(Math.round(-annualWithdrawalTaxAmount));
+        data.skatt2.push(Math.round(-taxToPayThisYear)); // Push the deferred tax that was paid THIS year
+        data.renteskatt.push(Math.round(-annualBondTaxAmount));
+        data.annualStockPercentages.push(Math.round(annualStockPercentage));
+        data.annualBondPercentages.push(Math.round(annualBondPercentage));
+        data.investedCapitalHistory.push(Math.round(taxFreeCapitalRemaining));
+    }
+
+    return { labels, data };
+};
+
+// --- From App.tsx ---
+ChartJS.register(
+  CategoryScale, LinearScale, BarElement, Title, Tooltip, ChartJsLegend, PointElement, LineElement, Filler
+);
+
+const formatCurrency = (value) => new Intl.NumberFormat('nb-NO', { style: 'currency', currency: 'NOK', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
+const formatNumberRaw = (value) => new Intl.NumberFormat('nb-NO', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
+
+// --- HELPER & CHILD COMPONENTS --- //
+const SliderInput = ({ id, label, value, min, max, step, onChange, unit, isCurrency, displayValue }) => (
+    <div>
+        <label htmlFor={id} className="font-medium text-sm uppercase tracking-wider text-[#333333]/80">{label}</label>
+        <div className="flex items-center gap-4 mt-1">
+            <input
+                type="range"
+                id={id}
+                name={id}
+                min={min}
+                max={max}
+                step={step}
+                value={value}
+                onChange={(e) => onChange(id, parseFloat(e.target.value))}
+                className="w-full h-2 bg-[#DDDDDD] rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:bg-[#66CCDD] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white"
+            />
+            <span className="font-medium text-base text-[#333333] w-32 text-right">
+                {displayValue ?? (isCurrency ? formatCurrency(value) : `${formatNumberRaw(value)} ${unit}`)}
+            </span>
+        </div>
+    </div>
+);
+
+const DeferredBondTaxToggle = ({ value, onChange }) => (
+    <div>
+        <label className="font-medium text-sm uppercase tracking-wider text-[#333333]/80">Utsatt skatt på renter</label>
+        <div className="grid grid-cols-2 gap-2 mt-2">
+            <button 
+                onClick={() => onChange('deferredBondTax', false)} 
+                className={`p-3 rounded-lg flex items-center justify-center text-center font-medium transition-all transform hover:-translate-y-0.5 ${!value ? 'bg-[#66CCDD] text-white shadow-lg' : 'bg-white border border-[#DDDDDD] text-[#333333] hover:bg-gray-100'}`}
+            >
+                <span>Nei</span>
+            </button>
+            <button 
+                onClick={() => onChange('deferredBondTax', true)} 
+                className={`p-3 rounded-lg flex items-center justify-center text-center font-medium transition-all transform hover:-translate-y-0.5 ${value ? 'bg-[#66CCDD] text-white shadow-lg' : 'bg-white border border-[#DDDDDD] text-[#333333] hover:bg-gray-100'}`}
+            >
+                <span>Ja</span>
+            </button>
+        </div>
+    </div>
+);
+
+const InvestorTypeToggle = ({ value, onChange }) => (
+    <div>
+        <label className="font-medium text-sm uppercase tracking-wider text-[#333333]/80">Investor type</label>
+        <div className="grid grid-cols-2 gap-2 mt-2">
+            <button 
+                onClick={() => onChange('investorType', 'AS')} 
+                className={`p-3 rounded-lg flex items-center justify-center text-center font-medium transition-all transform hover:-translate-y-0.5 ${value === 'AS' ? 'bg-[#66CCDD] text-white shadow-lg' : 'bg-white border border-[#DDDDDD] text-[#333333] hover:bg-gray-100'}`}
+            >
+                <span>AS</span>
+            </button>
+            <button 
+                onClick={() => onChange('investorType', 'Privat')} 
+                className={`p-3 rounded-lg flex items-center justify-center text-center font-medium transition-all transform hover:-translate-y-0.5 ${value === 'Privat' ? 'bg-[#66CCDD] text-white shadow-lg' : 'bg-white border border-[#DDDDDD] text-[#333333] hover:bg-gray-100'}`}
+            >
+                <span>Privat</span>
+            </button>
+        </div>
+    </div>
+);
+
+const ResetAllButton = ({ onReset }) => (
+    <div>
+        <label className="font-medium text-sm uppercase tracking-wider text-[#333333]/80">Nullstill alt</label>
+        <div className="mt-2">
+            <button 
+                onClick={onReset} 
+                className="w-full p-3 rounded-lg flex items-center justify-center text-center font-medium transition-all transform hover:-translate-y-0.5 bg-white border border-[#DDDDDD] text-[#333333] hover:bg-gray-100"
+            >
+                <span>Nullstill alt</span>
+            </button>
+        </div>
+    </div>
+);
+
+const ManualTaxInput = ({ id, label, value, onChange }) => (
+    <div>
+        <label htmlFor={id} className="font-medium text-sm uppercase tracking-wider text-[#333333]/80">{label}</label>
+        <div className="flex items-center gap-2 mt-1">
+            <input
+                type="number"
+                id={id}
+                name={id}
+                min="0"
+                max="100"
+                step="0.1"
+                value={value}
+                onChange={(e) => onChange(id, parseFloat(e.target.value) || 0)}
+                className="flex-1 bg-white border border-[#DDDDDD] rounded-md px-3 py-2 text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#66CCDD] focus:border-transparent"
+                placeholder="0.0"
+            />
+            <span className="font-medium text-base text-[#333333] w-8">%</span>
+        </div>
+    </div>
+);
+
+const EventRow = ({ event, onUpdate, onRemove, maxYear }) => {
+    const [amount, setAmount] = useState(() => formatNumberRaw(event.belop));
+
+    useEffect(() => {
+        setAmount(formatNumberRaw(event.belop));
+    }, [event.belop]);
+
+    const handleAmountChange = (e) => {
+        setAmount(e.target.value);
+    };
+
+    const handleAmountBlur = () => {
+        let num = parseFloat(amount.replace(/\s/g, '').replace(/,/g, '.'));
+        if (isNaN(num)) num = 0;
+        onUpdate(event.id, 'belop', num);
+    };
+
+    const handleStartChange = (e) => {
+        const newStart = parseInt(e.target.value, 10);
+        onUpdate(event.id, 'startAar', newStart);
+        if (newStart > event.sluttAar) {
+            onUpdate(event.id, 'sluttAar', newStart);
+        }
+    };
+
+    const handleEndChange = (e) => {
+        const newEnd = parseInt(e.target.value, 10);
+        onUpdate(event.id, 'sluttAar', newEnd);
+        if (newEnd < event.startAar) {
+            onUpdate(event.id, 'startAar', newEnd);
+        }
+    };
+
+    const range = maxYear - START_YEAR;
+    const leftPercent = range > 0 ? ((event.startAar - START_YEAR) / range) * 100 : 0;
+    const widthPercent = range > 0 ? ((event.sluttAar - event.startAar) / range) * 100 : 0;
+
+    return (
+        <div className="grid grid-cols-12 gap-3 items-center bg-gray-50 border border-[#DDDDDD] rounded-lg p-3">
+            <div className="col-span-3">
+                <input type="text" value={event.type} onChange={(e) => onUpdate(event.id, 'type', e.target.value)} className="w-full bg-white border border-[#DDDDDD] rounded-md px-3 py-1.5 text-[#333333]" placeholder="Navn på hendelse" />
+            </div>
+            <div className="col-span-5 relative h-10 flex items-center">
+                <div className="relative w-full">
+                    {/* Track background */}
+                    <div className="absolute w-full h-1.5 bg-[#DDDDDD] rounded-full top-1/2 -translate-y-1/2"></div>
+                    {/* Highlighted track */}
+                    <div className="absolute h-1.5 bg-[#66CCDD] rounded-full top-1/2 -translate-y-1/2" style={{ left: `${leftPercent}%`, width: `${Math.max(0, widthPercent)}%` }}></div>
+                    
+                                         {/* Start Year Label */}
+                     <span className="absolute text-sm text-gray-500 -bottom-8" style={{ left: `${leftPercent}%`, transform: 'translateX(-50%)' }}>{event.startAar}</span>
+                     {/* End Year Label */}
+                     <span className="absolute text-sm text-gray-500 -bottom-8" style={{ left: `${leftPercent + widthPercent}%`, transform: 'translateX(-50%)' }}>{event.sluttAar}</span>
+
+                    {/* Start slider (bottom layer) */}
+                    <input 
+                        type="range" min={START_YEAR} max={maxYear} value={event.startAar} onChange={handleStartChange} 
+                        className="absolute w-full h-1.5 appearance-none bg-transparent m-0 z-10 top-1/2 -translate-y-1/2 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-[#66CCDD] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none" 
+                    />
+                    
+                    {/* End slider (top layer, track is non-interactive) */}
+                    <input 
+                        type="range" min={START_YEAR} max={maxYear} value={event.sluttAar} onChange={handleEndChange} 
+                        className="absolute w-full h-1.5 appearance-none bg-transparent m-0 z-20 pointer-events-none top-1/2 -translate-y-1/2 [&::-webkit-slider-thumb]:pointer-events-auto [&::-moz-range-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-[#66CCDD] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none" 
+                    />
+                </div>
+            </div>
+            <div className="col-span-3">
+                <input type="text" value={amount} onChange={handleAmountChange} onBlur={handleAmountBlur} className="w-full bg-white border border-[#DDDDDD] rounded-md px-3 py-1.5 text-[#333333] text-right" placeholder="Beløp" />
+            </div>
+            <div className="col-span-1 flex justify-end">
+                <button onClick={() => onRemove(event.id)} className="text-gray-400 hover:text-[#CC0000] transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </button>
+            </div>
+        </div>
+    );
+};
+
+const CustomLegend = ({ items }) => (
+    <div className="flex justify-center flex-wrap gap-x-6 gap-y-2 mt-4 text-[#333333]/90 text-sm">
+        {items.map(item => (
+            <div key={item.label} className="flex items-center">
+                <div className="w-4 h-4 rounded-sm mr-2" style={{ backgroundColor: item.color }}></div>
+                <span>{item.label}</span>
+            </div>
+        ))}
+    </div>
+);
+
+// --- MAIN APP COMPONENT --- //
+function App() {
+    const [state, setState] = useState(INITIAL_APP_STATE);
+    const [showAllocationChart, setShowAllocationChart] = useState(false);
+
+    const handleStateChange = useCallback((id, value) => {
+        setState(prevState => {
+            const newState = { ...prevState, [id]: value };
+            if (id === 'initialPortfolioSize' && newState.investedCapital > value) {
+                newState.investedCapital = value;
+            }
+            if (id === 'investedCapital' && value > newState.initialPortfolioSize) {
+                newState.investedCapital = newState.initialPortfolioSize;
+            }
+            return newState;
+        });
+    }, []);
+
+    const handleResetAll = useCallback(() => {
+        setState({
+            ...INITIAL_APP_STATE,
+            initialPortfolioSize: 0,
+            investedCapital: 0,
+            desiredAnnualPayoutAfterTax: 0,
+            annualSavings: 0,
+            initialStockAllocation: 0, // 100% renter
+            events: [],
+            investorType: 'Privat', // Beholder Privat som standard
+            manualBondTaxRate: 22.0, // Beholder standard kapitalskatt
+            manualStockTaxRate: 37.8, // Beholder standard aksjebeskatning
+            desiredAnnualConsumptionPayout: 0, // Nullstiller forbruksutbetaling
+            desiredAnnualWealthTaxPayout: 0, // Nullstiller formuesskatt utbetaling
+        });
+    }, []);
+
+    const handleTaperingChange = (option) => {
+        setState(s => ({ ...s, taperingOption: option }));
+        setShowAllocationChart(option !== 'none');
+    };
+
+    const handleAddEvent = useCallback(() => {
+        const newEvent = {
+            id: `event-${Date.now()}`,
+            type: 'Uttak',
+            belop: 0,
+            startAar: START_YEAR, // Default to current year
+            sluttAar: START_YEAR, // Default to current year
+        };
+        setState(s => ({ ...s, events: [...s.events, newEvent] }));
+    }, []);
+
+    const handleUpdateEvent = useCallback((id, key, value) => {
+        setState(s => ({
+            ...s,
+            events: s.events.map(e => e.id === id ? { ...e, [key]: value } : e)
+        }));
+    }, []);
+
+    const handleRemoveEvent = useCallback((id) => {
+        setState(s => ({ ...s, events: s.events.filter(e => e.id !== id) }));
+    }, []);
+
+    const prognosis = useMemo(() => calculatePrognosis(state), [state]);
+
+    const chartOptions = {
+        responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    title: (items) => `År ${items[0].label}`,
+                    label: (context) => `${context.dataset.label || ''}: ${formatCurrency(context.raw)}`,
+                }
+            }
+        },
+        scales: {
+            x: { stacked: true, grid: { display: false }, ticks: { color: '#333333' } },
+            y: {
+                stacked: true, grid: { color: '#DDDDDD' },
+                ticks: { color: '#333333', callback: (value) => `${(value / 1000000).toLocaleString('nb-NO')} MNOK` }
+            }
+        }
     };
     
-    // Initialiserer applikasjonen når DOM er fullastet.
-    WealthTaxApp.init();
-});
+    const investmentChartData = {
+        labels: prognosis.labels,
+        datasets: [
+            { label: 'Avkastning', data: prognosis.data.avkastning, backgroundColor: CHART_COLORS.avkastning, stack: 'portfolio' },
+            { label: 'Årlig sparing', data: prognosis.data.sparing, backgroundColor: CHART_COLORS.sparing, stack: 'portfolio' },
+            { label: 'Hovedstol', data: prognosis.data.hovedstol, backgroundColor: CHART_COLORS.hovedstol, stack: 'portfolio' },
+            { label: 'Hendelser', data: prognosis.data.event_total, backgroundColor: CHART_COLORS.event_total_color, stack: 'portfolio' },
+            { label: 'Netto utbetaling', data: prognosis.data.nettoUtbetaling, backgroundColor: CHART_COLORS.utbetaling_netto, stack: 'portfolio' },
+            { label: 'Skatt', data: prognosis.data.skatt, backgroundColor: CHART_COLORS.utbetaling_skatt, stack: 'portfolio' },
+            { label: 'Skatt på hendelser', data: prognosis.data.skatt2, backgroundColor: CHART_COLORS.skatt2, stack: 'portfolio' },
+            { label: 'Løpende renteskatt', data: prognosis.data.renteskatt, backgroundColor: CHART_COLORS.renteskatt, stack: 'portfolio' },
+        ],
+    };
+
+    const allocationChartData = {
+        labels: prognosis.labels,
+        datasets: [
+            { label: 'Aksjeandel', data: prognosis.data.annualStockPercentages, backgroundColor: CHART_COLORS.aksjeandel, borderColor: CHART_COLORS.aksjeandel, fill: true, tension: 0.4 },
+            { label: 'Renteandel', data: prognosis.data.annualBondPercentages, backgroundColor: CHART_COLORS.renteandel, borderColor: CHART_COLORS.renteandel, fill: true, tension: 0.4 },
+        ],
+    };
+
+    const investedCapitalChartData = {
+        labels: prognosis.labels,
+        datasets: [{ label: 'Innskutt kapital', data: prognosis.data.investedCapitalHistory, backgroundColor: CHART_COLORS.innskutt_kapital, borderColor: CHART_COLORS.innskutt_kapital }],
+    };
+
+    const allocationChartOptions = { ...chartOptions, scales: { ...chartOptions.scales, y: { ...chartOptions.scales.y, stacked: true, max: 100, ticks: { ...chartOptions.scales.y.ticks, callback: (v) => `${v}%` } } }, plugins: { ...chartOptions.plugins, legend: { display: true, labels: { color: '#333333' } } } };
+    const capitalChartOptions = { ...chartOptions, scales: { ...chartOptions.scales, y: { ...chartOptions.scales.y, stacked: false } }, plugins: { ...chartOptions.plugins, legend: { display: true, labels: { color: '#333333' } } } };
+    
+    const totalYears = state.investmentYears + state.payoutYears;
+    const maxEventYear = START_YEAR + totalYears - 1;
+
+    return (
+        <div className="font-sans text-[#333333] bg-white p-4 sm:p-8 min-h-screen flex justify-center items-start">
+            <div className="w-full max-w-[1840px] flex flex-col gap-6">
+
+                <div className="bg-white border border-[#DDDDDD] rounded-xl p-6 flex flex-col">
+                    <h1 className="text-3xl md:text-4xl font-bold text-center text-[#4A6D8C] mb-4">Mål og behov</h1>
+                    <div className="relative h-[500px]">
+                        <Bar options={chartOptions} data={investmentChartData} />
+                    </div>
+                    <CustomLegend items={LEGEND_DATA} />
+                </div>
+                
+                {showAllocationChart && (
+                    <div className="bg-white border border-[#DDDDDD] rounded-xl p-6 flex flex-col">
+                         <h2 className="text-xl font-bold text-center text-[#4A6D8C] mb-4">Aksjeandel over tid</h2>
+                        <div className="relative h-[300px]">
+                           <Line options={allocationChartOptions} data={allocationChartData} />
+                        </div>
+                    </div>
+                )}
+
+                <div className="bg-white border border-[#DDDDDD] rounded-xl p-6 flex flex-col">
+                    <h2 className="text-xl font-bold text-center text-[#4A6D8C] mb-4">Innskutt kapital over tid</h2>
+                    <div className="relative h-[300px]">
+                        <Bar options={capitalChartOptions} data={investedCapitalChartData} />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    {/* Assumptions Panel */}
+                    <div className="bg-white border border-[#DDDDDD] rounded-xl p-6 flex flex-col gap-6">
+                        <h2 className="text-2xl font-bold text-[#4A6D8C]">Forutsetninger</h2>
+                        <SliderInput id="initialPortfolioSize" label="Porteføljestørrelse (NOK)" value={state.initialPortfolioSize} min={2500000} max={150000000} step={500000} onChange={handleStateChange} isCurrency />
+                        <SliderInput id="investedCapital" label="Innskutt kapital (skattefri) (NOK)" value={state.investedCapital} min={0} max={state.initialPortfolioSize} step={100000} onChange={handleStateChange} isCurrency />
+                        <SliderInput id="investmentYears" label="Antall år investeringsperiode" value={state.investmentYears} min={1} max={30} step={1} onChange={handleStateChange} unit="år" />
+                        <SliderInput id="payoutYears" label="Antall år med utbetaling" value={state.payoutYears} min={0} max={30} step={1} onChange={handleStateChange} unit="år" />
+                       
+                         <SliderInput id="annualSavings" label="Årlig sparing (NOK)" value={state.annualSavings} min={0} max={10000000} step={10000} onChange={handleStateChange} isCurrency />
+                         <DeferredBondTaxToggle value={state.deferredBondTax} onChange={handleStateChange} />
+                         <InvestorTypeToggle value={state.investorType} onChange={handleStateChange} />
+                         <ResetAllButton onReset={handleResetAll} />
+                         
+                         {/* Ønsket årlig utbetaling - flyttet ned under Nullstill alt */}
+                         <div>
+                             <h3 className="text-2xl font-bold text-[#4A6D8C] mb-4">Ønsket årlig utbetaling</h3>
+                             <div className="mt-4 space-y-4">
+                                 <SliderInput 
+                                     id="desiredAnnualConsumptionPayout" 
+                                     label="Ønsket årlig uttak til forbruk (NOK)" 
+                                     value={state.desiredAnnualConsumptionPayout} 
+                                     min={0} 
+                                     max={5000000} 
+                                     step={50000} 
+                                     onChange={handleStateChange} 
+                                     isCurrency 
+                                 />
+                                 <SliderInput 
+                                     id="desiredAnnualWealthTaxPayout" 
+                                     label="Ønsket årlig uttak til formuesskatt (NOK)" 
+                                     value={state.desiredAnnualWealthTaxPayout} 
+                                     min={0} 
+                                     max={2000000} 
+                                     step={25000} 
+                                     onChange={handleStateChange} 
+                                     isCurrency 
+                                 />
+                                 <div className="bg-gray-50 border border-[#DDDDDD] rounded-lg p-3">
+                                     <div className="text-sm text-[#333333]/70 mb-1">Sum ønsket årlig utbetaling (etter skatt):</div>
+                                     <div className="text-lg font-semibold text-[#4A6D8C]">
+                                         {formatCurrency(state.desiredAnnualConsumptionPayout + state.desiredAnnualWealthTaxPayout)}
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+                    </div>
+
+                    {/* Parameters Panel */}
+                    <div className="bg-white border border-[#DDDDDD] rounded-xl p-6 flex flex-col gap-6">
+                        <h2 className="text-2xl font-bold text-[#4A6D8C]">Parametere</h2>
+                        
+                        <div>
+                            <label className="font-medium text-sm uppercase tracking-wider text-[#333333]/80">Aksjeandel første år (%)</label>
+                            <div className="grid grid-cols-4 gap-2 mt-2">
+                                {STOCK_ALLOCATION_OPTIONS.map(opt => (
+                                    <button key={opt.value} onClick={() => handleStateChange('initialStockAllocation', opt.value)} className={`aspect-square rounded-lg flex items-center justify-center text-center p-1 font-medium transition-all transform hover:-translate-y-0.5 ${state.initialStockAllocation === opt.value ? 'bg-[#66CCDD] text-white shadow-lg' : 'bg-white border border-[#DDDDDD] text-[#333333] hover:bg-gray-100'}`}>
+                                        {opt.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="font-medium text-sm uppercase tracking-wider text-[#333333]/80">Aksjeandel nedtrapping</label>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
+                                {TAPERING_OPTIONS.map(opt => (
+                                    <button key={opt.id} onClick={() => handleTaperingChange(opt.value)} className={`p-3 rounded-lg flex flex-col items-center justify-center text-center font-medium transition-all transform hover:-translate-y-0.5 ${state.taperingOption === opt.value ? 'bg-[#66CCDD] text-white shadow-lg' : 'bg-white border border-[#DDDDDD] text-[#333333] hover:bg-gray-100'}`}>
+                                        <span>{opt.label}</span>
+                                        <span className="text-xs text-[#333333]/70">{opt.sublabel}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <SliderInput id="stockReturnRate" label="Forventet avkastning aksjer" value={state.stockReturnRate} min={6} max={12} step={0.1} onChange={handleStateChange} displayValue={`${state.stockReturnRate.toFixed(1)}%`} />
+                        <SliderInput id="bondReturnRate" label="Forventet avkastning renter" value={state.bondReturnRate} min={3} max={9} step={0.1} onChange={handleStateChange} displayValue={`${state.bondReturnRate.toFixed(1)}%`} />
+                        
+                        {/* Forventet avkastning felt */}
+                        <div>
+                            <label className="font-medium text-sm uppercase tracking-wider text-[#333333]/80">Forventet avkastning</label>
+                            <div className="bg-gray-50 border border-[#DDDDDD] rounded-lg p-3 mt-1">
+                                <div className="text-lg font-semibold text-[#4A6D8C]">
+                                    {(() => {
+                                        const stockAllocation = state.initialStockAllocation / 100;
+                                        const bondAllocation = (100 - state.initialStockAllocation) / 100;
+                                        const weightedReturn = (stockAllocation * state.stockReturnRate) + (bondAllocation * state.bondReturnRate);
+                                        return `${weightedReturn.toFixed(1)}%`;
+                                    })()}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {/* Skatt seksjon */}
+                        <div className="mt-14 md:mt-20 xl:mt-24">
+                            <h3 className="text-2xl font-bold text-[#4A6D8C] mb-4">Skatt</h3>
+                            <div className="space-y-4">
+                                <SliderInput id="shieldingRate" label="Skjermingsrente" value={state.shieldingRate} min={2} max={7} step={0.1} onChange={handleStateChange} displayValue={`${state.shieldingRate.toFixed(1)}%`} />
+                                <ManualTaxInput id="manualStockTaxRate" label="Utbytteskatt / skatt aksjer (%)" value={state.manualStockTaxRate} onChange={handleStateChange} />
+                                <ManualTaxInput id="manualBondTaxRate" label="Kapitalskatt (%)" value={state.manualBondTaxRate} onChange={handleStateChange} />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Events Panel - Moved to bottom left */}
+                    <div className="bg-white border border-[#DDDDDD] rounded-xl p-6 flex flex-col gap-6">
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-2xl font-bold text-[#4A6D8C]">Hendelser</h2>
+                            <button onClick={handleAddEvent} className="flex items-center gap-2 bg-[#3388CC] hover:bg-[#005599] text-white font-medium py-2 px-4 rounded-lg transition-all transform hover:-translate-y-0.5 shadow-md">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" /></svg>
+                                <span>Legg til hendelse</span>
+                            </button>
+                        </div>
+                        
+                        <div className="space-y-3 mt-4">
+                            {state.events.map(event => (
+                                <EventRow key={event.id} event={event} onUpdate={handleUpdateEvent} onRemove={handleRemoveEvent} maxYear={maxEventYear} />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// --- From index.tsx (Mounting logic) ---
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+    throw new Error("Could not find root element to mount to");
+}
+
+const root = createRoot(rootElement);
+root.render(
+    <React.StrictMode>
+        <App />
+    </React.StrictMode>
+); 
