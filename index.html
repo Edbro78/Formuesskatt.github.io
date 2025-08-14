@@ -350,7 +350,7 @@ Analyser kjøpekraft →
                 // For primærbolig: 25% verdivurdering (dvs. 75% rabatt) opp til terskel på 10M, og 70% verdivurdering (dvs. 30% rabatt) over terskel.
                 'primary-residence': { valuation_under_threshold: 0.25, valuation_over_threshold: 0.70 },
                 'holiday-home': 0.70, // 70% verdivurdering
-                'land-plot': 0.70,    // 70% verdivurdering
+                'land-plot': 0.80,    // 80% verdivurdering
                 'car-boat': 1,        // 100% verdivurdering (0% rabatt)
                 'limited-company': 0.80, // 80% verdivurdering (20% rabatt)
                 'private-portfolio': 0.80, // 80% verdivurdering (20% rabatt)
@@ -477,7 +477,7 @@ Analyser kjøpekraft →
                 const primaryResidenceFixedThreshold = 10000000; 
 
                 // Bestemmer skattefritt beløp basert på personantall
-                const taxFreeAllowance = this.state.personCount === 1 ? 1700000 : 3400000;
+                const taxFreeAllowance = this.state.personCount === 1 ? 1760000 : 3520000;
                 // Bestemmer terskel for høy sats basert på personantall
                 const highRateThreshold = this.state.personCount === 1 ? 20000000 : 40000000;
                 // Summerer alle eiendelsverdier for å få bruttoformue
@@ -508,9 +508,32 @@ Analyser kjøpekraft →
                 // Nettoformue er den skattemessige formuen
                 const netWealth = totalValuedWealth; 
 
-                // Fradragsberettiget gjeld er proporsjonal med skattemessig formue
-                const proportionalDebtShare = grossWealth > 0 ? totalValuedWealth / grossWealth : 0;
-                const deductibleDebt = values.privateDebt * proportionalDebtShare;
+                // Fradragsberettiget gjeld: All gjeld er fradragsberettiget som utgangspunkt
+                // Men en del av gjelden kan ikke trekkes fra basert på rabatter (ekskludert primærbolig)
+                
+                // Beregn total rabatt ekskludert primærbolig
+                let totalDiscountExcludingPrimaryResidence = 0;
+                Object.keys(values.assets).forEach(key => {
+                    if (key !== 'primary-residence') {
+                        const assetValue = values.assets[key];
+                        let discount = 0;
+                        
+                        if (typeof this.discounts[key] === 'number') {
+                            // For eiendeler med enkelt rabatt
+                            discount = assetValue * (1 - this.discounts[key]);
+                        }
+                        
+                        totalDiscountExcludingPrimaryResidence += discount;
+                    }
+                });
+                
+                // Beregn andel av gjeld som ikke er fradragsberettiget
+                // Formel: Gjeld × (Total rabatt ekskludert primærbolig) / Total bruttoformue
+                const nonDeductibleDebtRatio = grossWealth > 0 ? totalDiscountExcludingPrimaryResidence / grossWealth : 0;
+                const nonDeductibleDebt = values.privateDebt * nonDeductibleDebtRatio;
+                
+                // Fradragsberettiget gjeld = Total gjeld - Gjeld som ikke er fradragsberettiget
+                const deductibleDebt = values.privateDebt - nonDeductibleDebt;
 
                 // Skattegrunnlaget er nettoformue minus fribeløp og fradragsberettiget gjeld
                 const taxableBase = Math.max(0, netWealth - taxFreeAllowance - deductibleDebt);
