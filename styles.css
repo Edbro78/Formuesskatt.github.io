@@ -9,7 +9,7 @@ html, body {
 }
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Whitney', 'Inter', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
     background-color: #0f172a; /* slate-900 */
     color: #E5E7EB; /* light-text */
 }
@@ -194,4 +194,91 @@ input[type="range"] {
     background: #3b82f6;
 }
 
+
+/* --- Typografi i henhold til kravspesifikasjonen --- */
+/* Merk: For full Whitney-støtte må lisensierte fontfiler leveres og kobles inn. */
+
+/* Basisklasse for enkel bruk av Whitney-snittet */
+.font-whitney {
+    font-family: 'Whitney', 'Inter', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Overskrifter */
+.heading-xl {
+    /* H1 (Whitney Black, >80pt) – responsivt skalert */
+    font-weight: 900; /* Black */
+    font-size: clamp(3rem, 6vw + 1rem, 6.25rem); /* ~48px–100px */
+    line-height: 1.1;
+}
+
+.heading-l {
+    /* H2 (Whitney Black, 18–80pt) */
+    font-weight: 900; /* Black */
+    font-size: clamp(1.125rem, 3.5vw + 0.5rem, 5rem); /* ~18px–80px */
+    line-height: 1.15;
+}
+
+.heading-m {
+    /* H3 (Whitney Bold, 10–16pt) */
+    font-weight: 700; /* Bold */
+    font-size: clamp(0.9rem, 1.2vw + 0.5rem, 1.333rem); /* ~14px–21px */
+    line-height: 1.25;
+}
+
+.heading-s {
+    /* H4 (Whitney Bold, samme str. som brødtekst) */
+    font-weight: 700; /* Bold */
+    font-size: 1rem; /* følger body */
+    line-height: 1.35;
+}
+
+/* Tekstelementer */
+.label-text {
+    /* Etikett (Whitney Medium, versaler, 10% tracking, 16–24px) */
+    font-weight: 500; /* Medium */
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: clamp(1rem, 1.2vw + 0.5rem, 1.5rem);
+}
+
+/* Kompakt UI-variant for små felter/etiketter i dashboardet */
+.label-ui {
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.75rem;
+}
+
+.preamble-text {
+    /* Innledning (Whitney Book, 16–20px, med innrykk) */
+    font-weight: 400; /* Book */
+    font-size: clamp(1rem, 0.8vw + 0.75rem, 1.25rem);
+    text-indent: 1.25rem;
+}
+
+.paragraph-text {
+    /* Avsnitt (Whitney Book, 14–16px) */
+    font-weight: 400;
+    font-size: clamp(0.875rem, 0.6vw + 0.6rem, 1rem);
+    line-height: 1.6;
+}
+
+.quote-text {
+    /* Sitattekst (Whitney Medium Italic, 16–20px) */
+    font-weight: 500;
+    font-style: italic;
+    font-size: clamp(1rem, 0.8vw + 0.75rem, 1.25rem);
+}
+
+.quote-author {
+    /* Sitat-skribent (Whitney Bold) */
+    font-weight: 700;
+}
+
+.quote-title {
+    /* Sitat-skribent tittel (Whitney Medium, versaler, 10% tracking) */
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
 
