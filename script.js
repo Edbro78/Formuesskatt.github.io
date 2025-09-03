@@ -69,8 +69,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 div.className = 'asset-slider-group';
                 div.innerHTML = `
                     <div class="flex justify-between items-baseline mb-0"> 
-                        <label for="${asset.id}" class="text-xs font-medium text-slate-300">${asset.label}</label>
-                        <span id="${asset.id}-value" class="text-xs font-semibold text-[var(--accent-blue-light)]">${this.formatCurrency(asset.value)}</span> 
+                        <label for="${asset.id}" class="label-ui text-slate-300">${asset.label}</label>
+                        <span id="${asset.id}-value" class="heading-s text-[var(--accent-blue-light)]">${this.formatCurrency(asset.value)}</span> 
                     </div>
                     <input type="range" id="${asset.id}" min="${asset.min}" max="${asset.max}" step="${asset.step}" value="${asset.value}">
                 `;
