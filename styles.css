@@ -32,19 +32,20 @@ body {
     --light-text: #E5E7EB;
     --medium-text: #CBD5E1;
     --border-color: #364A6E;
+    --body-bg: #0F172A;
 }
 
 /* --- Dashboard Spesifikke Stiler --- */
         .dashboard-container {
-            background-color: #1A2A47;
-            padding-top: 0.1rem; 
-            padding-bottom: 0.1rem; 
+            background-color: var(--dark-blue);
+            min-height: 100vh;
+            width: 100%;
             flex-grow: 1; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
             justify-content: flex-start; 
-            height: 100%; /* Tar full høyde av foreldreelementet (body) */
+            height: 100%;
         }
 @media (min-width: 1024px) { /* lg breakpoint */
     .dashboard-container {
@@ -55,17 +56,17 @@ body {
 
 /* Stil for hovedresultatverdiene */
         .output-value {
-            font-size: 1.8rem; /* Større font for å fylle plassen bedre */
+            font-size: 2rem !important;
             font-weight: 700;
-            color: #00A9E0;
+            color: var(--accent-blue-vibrant);
             word-break: break-word;
+            line-height: 1.2;
         }
 
         .output-label {
-            font-size: 0.75rem; /* Større font for bedre lesbarhet */
-            color: #CBD5E1;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            font-size: 1rem;
+            color: var(--medium-text);
+            letter-spacing: 0.02em;
         }
 
 /* Felles stil for nummerinput */
@@ -74,12 +75,14 @@ body {
             -moz-appearance: textfield;
             appearance: textfield;
             background-color: #1e293b; /* slate-800 */
-            border: 1px solid #364A6E;
-            border-radius: 0.25rem; 
-            padding: 0.15rem 0.3rem; /* Økt padding med 50% for gjeld-feltet */
-            color: #E5E7EB;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem; 
+            padding: 0.5rem 0.75rem; /* Y=8px, X=12px */
+            color: var(--light-text);
             width: 100%;
-            font-size: 0.9rem; /* Økt fontstørrelse med 50% for gjeld-feltet */
+            font-size: 1rem;
+            height: 2.5rem; /* ~40px */
+            line-height: 1.2;
         }
         input[type="text"].asset-input:focus {
             outline: none;
@@ -96,9 +99,9 @@ input[type="range"] {
     -moz-appearance: none;
     appearance: none;
     width: 100%;
-    height: 2px; /* Ytterligere redusert høyde på slideren */
-    background: #1e293b; /* slate-800 */
-    border-radius: 3px; 
+    height: 8px; /* Sporhøyde */
+    background: var(--border-color);
+    border-radius: 9999px; 
     outline: none;
     transition: background 0.3s, opacity 0.2s;
 }
@@ -106,21 +109,21 @@ input[type="range"] {
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
-            width: 10px; /* Ytterligere redusert thumb-størrelse */
-            height: 10px; /* Ytterligere redusert thumb-størrelse */
-            background: #60A5FA;
+            width: 20px; 
+            height: 20px; 
+            background: var(--accent-blue-light);
             cursor: pointer;
             border-radius: 50%;
-            border: 1px solid #1A2A47;
-            margin-top: -4px; /* Juster for å sentrere thumb på den tynnere slideren */
+            border: 2px solid var(--dark-blue);
+            margin-top: -6px; /* Sentrer på spor (8px) */
         }
         input[type="range"]::-moz-range-thumb {
-            width: 10px; 
-            height: 10px; 
-            background: #60A5FA;
+            width: 20px; 
+            height: 20px; 
+            background: var(--accent-blue-light);
             cursor: pointer;
             border-radius: 50%;
-            border: 1px solid #1A2A47;
+            border: 2px solid var(--dark-blue);
         }
 
 /* Side 2 Tabellstiler */
@@ -212,23 +215,26 @@ input[type="range"] {
 }
 
 .heading-l {
-    /* H2 (Whitney Black, 18–80pt) */
-    font-weight: 900; /* Black */
-    font-size: clamp(1.125rem, 3.5vw + 0.5rem, 5rem); /* ~18px–80px */
-    line-height: 1.15;
+    /* H1: 30px mob, 36px ≥768px */
+    font-weight: 900;
+    font-size: 1.875rem;
+    line-height: 1.2;
+}
+@media (min-width: 768px) {
+    .heading-l { font-size: 2.25rem; }
 }
 
 .heading-m {
-    /* H3 (Whitney Bold, 10–16pt) */
-    font-weight: 700; /* Bold */
-    font-size: clamp(0.9rem, 1.2vw + 0.5rem, 1.333rem); /* ~14px–21px */
+    /* H2: 24px */
+    font-weight: 900;
+    font-size: 1.5rem;
     line-height: 1.25;
 }
 
 .heading-s {
-    /* H4 (Whitney Bold, samme str. som brødtekst) */
-    font-weight: 700; /* Bold */
-    font-size: 1rem; /* følger body */
+    /* H3: 20px */
+    font-weight: 700;
+    font-size: 1.25rem;
     line-height: 1.35;
 }
 
@@ -246,7 +252,7 @@ input[type="range"] {
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    font-size: 0.75rem;
+    font-size: 0.875rem; /* 14px */
 }
 
 .preamble-text {
@@ -259,8 +265,8 @@ input[type="range"] {
 .paragraph-text {
     /* Avsnitt (Whitney Book, 14–16px) */
     font-weight: 400;
-    font-size: clamp(0.875rem, 0.6vw + 0.6rem, 1rem);
-    line-height: 1.6;
+    font-size: 1rem;
+    line-height: 1.5;
 }
 
 .quote-text {
@@ -280,5 +286,14 @@ input[type="range"] {
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.1em;
+}
+
+/* Kombinasjonskort (små tall) */
+.combo-value {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+    min-height: 2rem;
 }
 
