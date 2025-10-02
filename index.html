@@ -11,7 +11,7 @@
 <!-- Google Fonts: Inter -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     
 <!-- Custom CSS -->
     <link rel="stylesheet" href="styles.css">
@@ -24,8 +24,8 @@
 
 <!-- =========== SIDE 1: FORMUESSKATTKALKULATOR =========== -->
 <div id="page1" class="page active" style="display: block !important; background-color: #0f172a;">
-<div class="dashboard-container w-full flex flex-col items-center justify-center p-4 lg:p-8">
-<div class="w-full max-w-6xl mx-auto h-full flex flex-col justify-between"> <!-- Lagt til h-full flex flex-col justify-between -->
+<div class="dashboard-container min-h-screen w-full flex flex-col items-center justify-center p-4 lg:p-8">
+<div class="w-full h-full flex flex-col justify-between"> <!-- Lagt til h-full flex flex-col justify-between -->
 <header class="text-center mb-1 relative"> 
 <!-- Disclaimer Button -->
 <button id="disclaimerBtn" class="absolute left-0 top-0 bg-[#24385B] hover:bg-[#364A6E] text-white font-semibold py-2 px-3 rounded-md text-sm transition-colors">
@@ -33,23 +33,23 @@
 </button>
 
 <h1 class="heading-l text-white mb-2">Formuesskatt</h1> 
-<p class="text-slate-400 paragraph-text">Kun ment til illustrasjonsformål og ikke ment som et skattemessig råd. Se Disclaimer</p> 
+<p class="text-slate-400 paragraph-text"></p> 
 
 </header>
 
 
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-2 flex-grow"> <!-- Lagt til flex-grow her -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 flex-grow"> <!-- 2 like brede kolonner på desktop -->
 <!-- Kolonne 1: Input -->
-<div class="lg:col-span-1 space-y-1.5 flex flex-col"> 
-<div class="bg-[#24385B] p-2 rounded-xl h-full flex flex-col"> 
-<h2 class="heading-m text-white border-b border-[#364A6E] pb-1 mb-1">Input</h2> 
-<div class="space-y-1.5 flex-grow"> 
+<div class="lg:col-span-1 space-y-6 flex flex-col"> 
+<div class="bg-[#24385B] p-6 rounded-xl h-full flex flex-col border border-[#364A6E]"> 
+<h2 class="heading-m text-white border-b border-[#364A6E] pb-4 mb-8">Input</h2> 
+<div class="space-y-5 flex-grow"> 
 <div>
 <label class="block label-ui text-slate-300 mb-0.5">Antall personer</label>
 <div class="flex gap-1.5" id="person-count"> 
-<button data-value="1" class="person-btn flex-1 bg-blue-600 text-white font-semibold py-2 px-3 rounded-md text-sm">1 person</button> 
-<button data-value="2" class="person-btn flex-1 bg-slate-700 text-slate-300 font-semibold py-2 px-3 rounded-md text-sm">2 personer</button> 
+<button data-value="1" class="person-btn flex-1 bg-blue-600 text-white font-medium py-2 px-2.5 rounded-full text-sm">1 person</button> 
+<button data-value="2" class="person-btn flex-1 bg-slate-700 text-slate-300 font-medium py-2 px-2.5 rounded-full text-sm">2 personer</button> 
 </div>
 </div>
 <!-- "Innslagspunkt primærbolig" er fjernet herfra i HTML -->
@@ -59,22 +59,22 @@
 <button id="reset-btn" class="w-full mt-2 bg-[#24385B] hover:bg-[#364A6E] text-slate-300 font-semibold py-1 px-2 rounded-md text-xs transition-colors border border-[#364A6E]">Nullstill alt</button>
 </div>
 </div>
-<h3 class="heading-s text-white border-b border-[#364A6E] pb-1 mt-2 mb-1">Eiendeler</h3> 
-<div id="assets-container" class="space-y-0.5 flex-grow overflow-y-auto custom-scrollbar"> 
+<h3 class="heading-s text-white border-b border-[#364A6E] pb-4 mt-8 mb-6">Eiendeler</h3> 
+<div id="assets-container" class="space-y-5 flex-grow overflow-y-auto custom-scrollbar"> 
 <!-- Innhold genereres av JS -->
 </div> 
 </div>
 </div>
 
 <!-- Kolonne 2: Resultater og navigasjon -->
-<div class="lg:col-span-1 space-y-1.5 flex flex-col"> 
-<div class="bg-[#24385B] p-3 rounded-xl h-full flex flex-col"> <!-- Økt padding for å fylle bedre -->
-<h2 class="heading-m text-white border-b border-[#364A6E] pb-1 mb-1">Resultater</h2> 
-<div class="text-center bg-slate-900/80 p-4 rounded-lg mb-2"> <!-- Økt padding og mb for å fylle bedre -->
+<div class="lg:col-span-1 space-y-6 flex flex-col"> 
+<div class="bg-[#24385B] p-6 rounded-xl h-full flex flex-col border border-[#364A6E]"> <!-- Økt padding for å fylle bedre -->
+<h2 class="heading-m text-white border-b border-[#364A6E] pb-4 mb-8">Resultater</h2> 
+<div class="text-center bg-[#0F172A]/80 p-6 rounded-xl mb-6"> <!-- Økt padding og mb for å fylle bedre -->
 <div id="total-wealth-tax" class="output-value heading-m">0 kr</div>
 <div class="output-label mt-1 heading-s">Total Formuesskatt</div>
 </div>
-<div class="space-y-1.5 bg-slate-800/60 p-3 rounded-lg flex-grow text-sm"> <!-- Økt space-y, padding, og text-size -->
+<div class="space-y-5 bg-slate-800/60 p-6 rounded-xl flex-grow text-sm border border-[#364A6E]"> <!-- Økt space-y, padding, og text-size -->
 <div class="flex justify-between items-center text-slate-300 paragraph-text"><span>Bruttoformue:</span><span id="gross-wealth" class="heading-s text-white">0 kr</span></div><hr class="border-[#364A6E]">
 <div class="flex justify-between items-center text-slate-300 paragraph-text"><span>Verdsettelsesrabatt:</span><span id="total-discount" class="heading-s text-white">0 kr</span></div><hr class="border-[#364A6E]">
 <div class="flex justify-between items-center text-slate-300 paragraph-text"><span>Nettoformue (etter rabatt):</span><span id="net-wealth" class="heading-s text-white">0 kr</span></div><hr class="border-[#364A6E]">
@@ -92,14 +92,14 @@
 
 <!-- =========== SIDE 2: KJØPEKRAFTKALKULATOR =========== -->
 <div id="page2" class="page">
-<div class="dashboard-container w-full flex flex-col items-center justify-center p-4 lg:p-8">
-<div class="w-full max-w-6xl mx-auto h-full flex flex-col justify-between"> <!-- Lagt til h-full flex flex-col justify-between for ensartet høyde -->
+<div class="dashboard-container min-h-screen w-full flex flex-col items-center justify-center p-4 lg:p-8">
+<div class="w-full h-full flex flex-col justify-between"> <!-- Lagt til h-full flex flex-col justify-between for ensartet høyde -->
 <header class="text-center mb-1"> 
 <h1 class="heading-m text-white mb-0.5">Hvilken bankrente må du ha for å gå i null etter skatt?</h1> 
 </header>
 
 <div class="grid grid-cols-1 flex-grow"> <!-- Lagt til flex-grow her -->
-<div class="bg-[#24385B] p-2 rounded-xl h-full flex flex-col"> 
+<div class="bg-[#24385B] p-6 rounded-xl h-full flex flex-col border border-[#364A6E]"> 
 <div class="mb-1.5 w-48"> 
 <label for="inflation-rate" class="block label-ui text-slate-300">Forventet inflasjon (%)</label>
 <input type="text" id="inflation-rate" class="asset-input mt-0.5" value="3.0">
