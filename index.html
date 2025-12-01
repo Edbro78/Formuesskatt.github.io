@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalkulator for Formuesskatt</title>
+
+<!-- Tailwind CSS for styling -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Google Fonts: Inter -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    
+<!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="antialiased font-whitney">
+
+
+
+
+
+<!-- =========== SIDE 1: FORMUESSKATTKALKULATOR =========== -->
+<div id="page1" class="page active" style="display: block !important; background-color: #0f172a;">
+<div class="dashboard-container min-h-screen w-full flex flex-col items-center justify-center p-4 lg:p-8">
+<div class="w-full h-full flex flex-col justify-between"> <!-- Lagt til h-full flex flex-col justify-between -->
+<header class="text-center mb-1 relative"> 
+<!-- Disclaimer Button -->
+<button id="disclaimerBtn" class="absolute left-0 top-0 bg-[#24385B] hover:bg-[#364A6E] text-white font-semibold py-2 px-3 rounded-md text-sm transition-colors">
+    Disclaimer / forklaring
+</button>
+
+<h1 class="heading-l text-white mb-2">Formuesskatt</h1> 
+<p class="text-slate-400 paragraph-text"></p> 
+
+</header>
+
+
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 flex-grow"> <!-- 2 like brede kolonner på desktop -->
+<!-- Kolonne 1: Input -->
+<div class="lg:col-span-1 space-y-6 flex flex-col"> 
+<div class="bg-[#24385B] p-6 rounded-xl h-full flex flex-col border border-[#364A6E]"> 
+<h2 class="heading-m text-white border-b border-[#364A6E] pb-4 mb-8">Input</h2> 
+<div class="space-y-5 flex-grow"> 
+<div>
+<label class="block label-ui text-slate-300 mb-0.5">Antall personer</label>
+<div class="flex gap-1.5" id="person-count"> 
+<button data-value="1" class="person-btn flex-1 bg-blue-600 text-white font-medium py-2 px-2.5 rounded-full text-sm">1 person</button> 
+<button data-value="2" class="person-btn flex-1 bg-slate-700 text-slate-300 font-medium py-2 px-2.5 rounded-full text-sm">2 personer</button> 
+</div>
+</div>
+<!-- "Innslagspunkt primærbolig" er fjernet herfra i HTML -->
+<div>
+<label for="private-debt" class="block label-ui text-slate-300">Privat gjeld (NOK)</label>
+<input type="text" id="private-debt" class="asset-input mt-0.5" value="5 000 000" placeholder="0">
+<button id="reset-btn" class="w-full mt-2 bg-[#24385B] hover:bg-[#364A6E] text-slate-300 font-semibold py-1 px-2 rounded-md text-xs transition-colors border border-[#364A6E]">Nullstill alt</button>
+</div>
+</div>
+<h3 class="heading-s text-white border-b border-[#364A6E] pb-4 mt-8 mb-6">Eiendeler</h3> 
+<div id="assets-container" class="space-y-5 flex-grow overflow-y-auto custom-scrollbar"> 
+<!-- Innhold genereres av JS -->
+</div> 
+</div>
+</div>
+
+<!-- Kolonne 2: Resultater og navigasjon -->
+<div class="lg:col-span-1 space-y-6 flex flex-col"> 
+<div class="bg-[#24385B] p-6 rounded-xl h-full flex flex-col border border-[#364A6E]"> <!-- Økt padding for å fylle bedre -->
+<h2 class="heading-m text-white border-b border-[#364A6E] pb-4 mb-8">Resultater</h2> 
+<div class="text-center bg-[#0F172A]/80 p-6 rounded-xl mb-6"> <!-- Økt padding og mb for å fylle bedre -->
+<div id="total-wealth-tax" class="output-value heading-m">0 kr</div>
+<div class="output-label mt-1 heading-s">Total Formuesskatt</div>
+</div>
+<div class="space-y-5 bg-slate-800/60 p-6 rounded-xl flex-grow text-sm border border-[#364A6E]"> <!-- Økt space-y, padding, og text-size -->
+<div class="flex justify-between items-center text-slate-300 paragraph-text"><span>Bruttoformue:</span><span id="gross-wealth" class="heading-s text-white">0 kr</span></div><hr class="border-[#364A6E]">
+<div class="flex justify-between items-center text-slate-300 paragraph-text"><span>Verdsettelsesrabatt:</span><span id="total-discount" class="heading-s text-white">0 kr</span></div><hr class="border-[#364A6E]">
+<div class="flex justify-between items-center text-slate-300 paragraph-text"><span>Nettoformue (etter rabatt):</span><span id="net-wealth" class="heading-s text-white">0 kr</span></div><hr class="border-[#364A6E]">
+<div class="flex justify-between items-center text-slate-300 paragraph-text"><span>Fradragsberettiget gjeld:</span><span id="deductible-debt" class="heading-s text-white">0 kr</span></div><hr class="border-[#364A6E]">
+<div class="flex justify-between items-center text-slate-300 paragraph-text"><span>Fribeløp:</span><span id="tax-free-allowance" class="heading-s text-white">0 kr</span></div><hr class="border-[#364A6E]">
+<div class="flex justify-between items-center text-white"><span class="heading-s">Skattegrunnlag:</span><span id="taxable-base" class="heading-m">0 kr</span></div><hr class="border-[#364A6E]"> 
+<div class="flex justify-between items-center text-slate-300 mt-1.5 paragraph-text"><span>Skatteandel av bruttoformue:</span><span id="tax-as-percentage-of-gross" class="heading-s text-white">0.00 %</span></div> 
+</div>
+<!-- Navigasjonsknapp til del 2 -->
+<!-- Button removed as requested -->
+</div>
+</div>
+</div>
+</div>
+
+<!-- =========== SIDE 2: KJØPEKRAFTKALKULATOR =========== -->
+<div id="page2" class="page">
+<div class="dashboard-container min-h-screen w-full flex flex-col items-center justify-center p-4 lg:p-8">
+<div class="w-full h-full flex flex-col justify-between"> <!-- Lagt til h-full flex flex-col justify-between for ensartet høyde -->
+<header class="text-center mb-1"> 
+<h1 class="heading-m text-white mb-0.5">Hvilken bankrente må du ha for å gå i null etter skatt?</h1> 
+</header>
+
+<div class="grid grid-cols-1 flex-grow"> <!-- Lagt til flex-grow her -->
+<div class="bg-[#24385B] p-6 rounded-xl h-full flex flex-col border border-[#364A6E]"> 
+<div class="mb-1.5 w-48"> 
+<label for="inflation-rate" class="block label-ui text-slate-300">Forventet inflasjon (%)</label>
+<input type="text" id="inflation-rate" class="asset-input mt-0.5" value="3.0">
+</div>
+
+<div class="space-y-1.5 flex-grow overflow-y-auto custom-scrollbar"> 
+<!-- Privatperson Tabell -->
+<div id="private-person-table" class="rate-table-container mb-2"></div> 
+                                    
+<!-- AS Tabell -->
+<div id="as-table" class="rate-table-container rate-table-as"></div>
+</div>
+</div>
+</div>
+<!-- Flyttet knappen hit og wrappet i en kolonne for å matche layout på Side 1 -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-2 mt-auto pt-2"> <!-- Nytt grid for knappen -->
+<div class="lg:col-span-1"> <!-- Sikrer at knappen tar opp halve bredden på desktop -->
+<div class="text-center"> 
+<button id="goToPage1Btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 px-2 rounded-lg shadow-md transition-transform transform hover:scale-105 text-sm"> 
+← tilbake til Formuesskatt
+</button>
+</div>
+</div>
+<div class="lg:col-span-1 hidden lg:block"> <!-- Dummy kolonne for å fylle den andre halvdelen på desktop -->
+<!-- Denne div'en er tom og kun for layout -->
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Disclaimer Modal -->
+<div id="disclaimerModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg max-w-4xl w-full max-h-[80vh] overflow-y-auto">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-900">Disclaimer / forklaring</h2>
+                <button id="closeDisclaimerModal" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+            </div>
+            <div class="text-gray-700 space-y-4 text-sm leading-relaxed">
+                <p><strong>Disclaimer:</strong></p>
+
+                <p>Resultatet av de beregninger som gjøres i kalkulatoren vil variere ut ifra hvilke tall som legges til grunn. Tallene som legges til grunn bestemmes i samtale mellom rådgiver og deltaker i møtet. Resultatet vil dermed kunne variere fra de tallene som fremkommer offisielle dokumenter i tilknytning til ytelse av investeringsrådgivning.</p>
+
+                <p>Beregningene i kalkulatoren må ansees som statiske og er kun ment for illustrasjonsformål. For konkrete fremstillinger, vises det til offisielle dokumenter knyttet til rådgivningen.</p>
+
+                <p><strong>Merk følgende:</strong></p>
+
+                <p>Modellen gir en indikativ beregning av Formuesskatt. Kun ment til illustrasjonsformål og ikke ment som et skattemessig råd. For korrekt historisk utregning av Formuesskatt bør klienten sjekke skattemeldingen for tidligere år.</p>
+
+                <p><strong>Bil:</strong> særskilte verdsettelsesregler</p>
+
+                <p><strong>Båt:</strong> særskilte verdsettelsesregler</p>
+
+                <p><strong>Fritidseiendom</strong> skal settes til historisk skatteverdi (ofte langt under 10 %), men maks 30 % av markedsverdi.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Output Floating Button -->
+    <button id="outputFab" class="fixed bottom-4 right-4 z-50 px-3 py-1.5 text-xs font-medium rounded-full bg-slate-700/70 hover:bg-slate-700 text-slate-200 border border-slate-600/70 shadow-sm transition-colors">
+        Output
+    </button>
+
+    <!-- Output Modal -->
+    <div id="outputModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-gray-900">Output</h2>
+                    <button id="closeOutputModal" class="text-gray-400 hover:text-gray-600 text-2xl font-bold" aria-label="Lukk">&times;</button>
+                </div>
+                <div class="relative">
+                    <textarea id="outputText" class="output-textarea w-full h-64" readonly></textarea>
+                    <button id="copyOutputBtn" class="copy-btn absolute bottom-3 right-3 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition-all">
+                        <span class="copy-icon" aria-hidden="true">📋</span>
+                        <span class="copy-label">Kopier</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Custom JavaScript -->
+    <script>
+        console.log('HTML script tag loaded');
+        // Test if basic JavaScript works
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded in HTML');
+            // Test if we can find elements
+            const page1 = document.getElementById('page1');
+            const page2 = document.getElementById('page2');
+            console.log('Page1 found:', !!page1);
+            console.log('Page2 found:', !!page2);
+            
+            // Disclaimer Modal Functionality
+            const disclaimerBtn = document.getElementById('disclaimerBtn');
+            const disclaimerModal = document.getElementById('disclaimerModal');
+            const closeDisclaimerModal = document.getElementById('closeDisclaimerModal');
+            
+            if (disclaimerBtn && disclaimerModal && closeDisclaimerModal) {
+                disclaimerBtn.addEventListener('click', function() {
+                    disclaimerModal.classList.remove('hidden');
+                });
+                
+                closeDisclaimerModal.addEventListener('click', function() {
+                    disclaimerModal.classList.add('hidden');
+                });
+                
+                // Close modal when clicking outside
+                disclaimerModal.addEventListener('click', function(e) {
+                    if (e.target === disclaimerModal) {
+                        disclaimerModal.classList.add('hidden');
+                    }
+                });
+                
+                // Close modal with Escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && !disclaimerModal.classList.contains('hidden')) {
+                        disclaimerModal.classList.add('hidden');
+                    }
+                });
+            }
+        });
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>

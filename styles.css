@@ -1,0 +1,327 @@
+
+
+/* --- Generelle Stiler --- */
+html, body {
+    height: 100%; /* Sikrer at html og body tar hele viewport-høyden */
+    margin: 0;
+    overflow-x: hidden; /* Forhindrer horisontal scrollbar */
+    overflow-y: hidden; /* Forhindrer vertikal scrollbar på hovedsiden, innhold i bokser kan scrolle om nødvendig */
+}
+
+body {
+    font-family: 'Whitney', 'Inter', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    background-color: #0f172a; /* slate-900 */
+    color: #E5E7EB; /* light-text */
+}
+
+/* --- Sidenavigasjon --- */
+.page {
+    display: none;
+    height: 100%; /* Sikrer at hver side tar full høyde */
+}
+.page.active {
+    display: block;
+}
+
+/* --- CSS Variabler (Fallback til hardkodede verdier) --- */
+:root {
+    --dark-blue: #1A2A47;
+    --accent-blue-light: #60A5FA;
+    --accent-blue-vibrant: #00A9E0;
+    --card-bg: #24385B;
+    --light-text: #E5E7EB;
+    --medium-text: #CBD5E1;
+    --border-color: #364A6E;
+    --body-bg: #0F172A;
+}
+
+/* --- Dashboard Spesifikke Stiler --- */
+        .dashboard-container {
+            background-color: var(--dark-blue);
+            min-height: 100vh;
+            width: 100%;
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: flex-start; 
+            height: 100%;
+        }
+@media (min-width: 1024px) { /* lg breakpoint */
+    .dashboard-container {
+        padding-top: 0.2rem; 
+        padding-bottom: 0.2rem; 
+    }
+}
+
+/* Stil for hovedresultatverdiene */
+        .output-value {
+            font-size: 2rem !important;
+            font-weight: 700;
+            color: var(--accent-blue-vibrant);
+            word-break: break-word;
+            line-height: 1.2;
+        }
+
+        .output-label {
+            font-size: 1rem;
+            color: var(--medium-text);
+            letter-spacing: 0.02em;
+        }
+
+/* Felles stil for nummerinput */
+        input[type="text"].asset-input {
+            -webkit-appearance: textfield;
+            -moz-appearance: textfield;
+            appearance: textfield;
+            background-color: #1e293b; /* slate-800 */
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem; 
+            padding: 0.5rem 0.75rem; /* Y=8px, X=12px */
+            color: var(--light-text);
+            width: 100%;
+            font-size: 1rem;
+            height: 2.5rem; /* ~40px */
+            line-height: 1.2;
+        }
+        input[type="text"].asset-input:focus {
+            outline: none;
+            border-color: #60A5FA;
+            box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.5);
+        }
+input[type="text"].asset-input::placeholder {
+    color: #475569; /* slate-600 */
+}
+
+/* --- Slider stiler --- */
+input[type="range"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px; /* Sporhøyde */
+    background: var(--border-color);
+    border-radius: 9999px; 
+    outline: none;
+    transition: background 0.3s, opacity 0.2s;
+}
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 20px; 
+            height: 20px; 
+            background: var(--accent-blue-light);
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid var(--dark-blue);
+            margin-top: -6px; /* Sentrer på spor (8px) */
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px; 
+            height: 20px; 
+            background: var(--accent-blue-light);
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid var(--dark-blue);
+        }
+
+/* Side 2 Tabellstiler */
+        .rate-table-container {
+            background-color: #24385B;
+            padding: 0.4rem; 
+            border-radius: 0.75rem;
+            margin: 20px 0;
+            min-height: 100px; /* Sikrer at tabellene har en minimum høyde */
+        }
+.rate-table-as {
+    background-color: #1e3a8a; 
+}
+        .rate-table-header {
+            display: grid;
+            /* Justerer grid-kolonner for bedre passform på mindre effektive oppløsninger */
+            grid-template-columns: minmax(65px, 1.5fr) repeat(4, minmax(40px, 1fr)); 
+            gap: 0.2rem; 
+            color: #CBD5E1;
+            font-weight: 600;
+            padding-bottom: 0.2rem; 
+            border-bottom: 1px solid #364A6E;
+            font-size: 0.65rem; 
+            text-align: right; 
+        }
+.rate-table-header > div:first-child {
+    text-align: left; 
+}
+        .rate-table-row {
+            display: grid;
+            /* Justerer grid-kolonner for bedre passform på mindre effektive oppløsninger */
+            grid-template-columns: minmax(65px, 1.5fr) repeat(4, minmax(40px, 1fr)); 
+            gap: 0.2rem; 
+            padding: 0.25rem 0; 
+            border-bottom: 1px solid #364A6E;
+            font-size: 0.65rem; 
+        }
+        .rate-table-row:last-child {
+            border-bottom: none;
+        }
+        .rate-table-row-label {
+            font-weight: 500;
+            color: #E5E7EB;
+            text-align: left; 
+        }
+.rate-table-cell {
+    text-align: right;
+}
+.rate-table-final-row {
+    font-size: 0.7rem; 
+    font-weight: 700;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.2);
+    margin: 0 -0.4rem; 
+    padding: 0.3rem 0.4rem; 
+}
+
+/* Custom scrollbar for better appearance on overflow content */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #1e293b;
+    border-radius: 10px;
+}
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #60A5FA;
+            border-radius: 10px;
+        }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #3b82f6;
+}
+
+
+/* --- Typografi i henhold til kravspesifikasjonen --- */
+/* Merk: For full Whitney-støtte må lisensierte fontfiler leveres og kobles inn. */
+
+/* Basisklasse for enkel bruk av Whitney-snittet */
+.font-whitney {
+    font-family: 'Whitney', 'Inter', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Overskrifter */
+.heading-xl {
+    /* H1 (Whitney Black, >80pt) – responsivt skalert */
+    font-weight: 900; /* Black */
+    font-size: clamp(3rem, 6vw + 1rem, 6.25rem); /* ~48px–100px */
+    line-height: 1.1;
+}
+
+.heading-l {
+    /* H1: 30px mob, 36px ≥768px */
+    font-weight: 900;
+    font-size: 1.875rem;
+    line-height: 1.2;
+}
+@media (min-width: 768px) {
+    .heading-l { font-size: 2.25rem; }
+}
+
+.heading-m {
+    /* H2: 24px */
+    font-weight: 900;
+    font-size: 1.5rem;
+    line-height: 1.25;
+}
+
+.heading-s {
+    /* H3: 20px */
+    font-weight: 700;
+    font-size: 1.25rem;
+    line-height: 1.35;
+}
+
+/* Tekstelementer */
+.label-text {
+    /* Etikett (Whitney Medium, versaler, 10% tracking, 16–24px) */
+    font-weight: 500; /* Medium */
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: clamp(1rem, 1.2vw + 0.5rem, 1.5rem);
+}
+
+/* Kompakt UI-variant for små felter/etiketter i dashboardet */
+.label-ui {
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.875rem; /* 14px */
+}
+
+.preamble-text {
+    /* Innledning (Whitney Book, 16–20px, med innrykk) */
+    font-weight: 400; /* Book */
+    font-size: clamp(1rem, 0.8vw + 0.75rem, 1.25rem);
+    text-indent: 1.25rem;
+}
+
+.paragraph-text {
+    /* Avsnitt (Whitney Book, 14–16px) */
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.quote-text {
+    /* Sitattekst (Whitney Medium Italic, 16–20px) */
+    font-weight: 500;
+    font-style: italic;
+    font-size: clamp(1rem, 0.8vw + 0.75rem, 1.25rem);
+}
+
+.quote-author {
+    /* Sitat-skribent (Whitney Bold) */
+    font-weight: 700;
+}
+
+.quote-title {
+    /* Sitat-skribent tittel (Whitney Medium, versaler, 10% tracking) */
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* Kombinasjonskort (små tall) */
+.combo-value {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+    min-height: 2rem;
+}
+
+/* --- Output Modal: Textarea + Copy Button --- */
+.output-textarea {
+    background-color: #f8fafc; /* slate-50 */
+    border: 1px solid #cbd5e1; /* slate-300 */
+    border-radius: 0.5rem;
+    padding: 0.75rem 0.75rem 2.75rem 0.75rem; /* plass til kopi-knapp */
+    color: #0f172a; /* slate-900 */
+    font-family: 'Whitney', 'Inter', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    font-size: 0.95rem;
+    resize: vertical;
+}
+.output-textarea:focus {
+    outline: none;
+    border-color: #3b82f6; /* blue-600 */
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+.copy-btn {
+    will-change: transform, background-color, box-shadow;
+}
+.copy-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+}
+.copy-btn:active {
+    transform: translateY(0);
+}
+
