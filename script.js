@@ -499,6 +499,45 @@ document.addEventListener('DOMContentLoaded', function() {
             closeOutput();
         }
     });
+
+    // --- TEMA (Lys/Mørk) ---
+    (function setupThemeToggle() {
+        const THEME_KEY = 'theme';
+        const toggleBtn = document.getElementById('themeToggle');
+        const rootEl = document.documentElement; // we apply class here
+
+        function setIcon(mode) {
+            if (!toggleBtn) return;
+            const sun = toggleBtn.querySelector('.theme-icon-sun');
+            const moon = toggleBtn.querySelector('.theme-icon-moon');
+            if (mode === 'light') {
+                if (sun) sun.style.display = 'none';
+                if (moon) moon.style.display = '';
+            } else {
+                if (sun) sun.style.display = '';
+                if (moon) moon.style.display = 'none';
+            }
+        }
+
+        function applyTheme(mode) {
+            const isLight = mode === 'light';
+            rootEl.classList.toggle('theme-light', isLight);
+            setIcon(mode);
+        }
+
+        // Default: behold mørk hvis ikke valgt
+        const saved = localStorage.getItem(THEME_KEY);
+        const initialMode = saved === 'light' ? 'light' : 'dark';
+        applyTheme(initialMode);
+
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                const next = rootEl.classList.contains('theme-light') ? 'dark' : 'light';
+                applyTheme(next);
+                try { localStorage.setItem(THEME_KEY, next); } catch (_) {}
+            });
+        }
+    })();
 });
 
 

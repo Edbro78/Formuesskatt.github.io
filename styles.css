@@ -49,8 +49,8 @@ body {
         }
 @media (min-width: 1024px) { /* lg breakpoint */
     .dashboard-container {
-        padding-top: 0.2rem; 
-        padding-bottom: 0.2rem; 
+        padding-top: 2.5rem; 
+        padding-bottom: 2.5rem; /* ekstra luft nederst for bedre synlig ramme */
     }
 }
 
@@ -323,5 +323,224 @@ input[type="range"] {
 }
 .copy-btn:active {
     transform: translateY(0);
+}
+
+/* ===================== */
+/*    Light Mode Theme   */
+/* ===================== */
+
+/* Subtil, diskret knapp for tema */
+.theme-toggle-btn {
+    height: 34px;
+    width: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background-color: rgba(51, 65, 85, 0.25); /* slate-700/25 */
+    color: #E5E7EB;
+    border: 1px solid rgba(71, 85, 105, 0.6); /* slate-600 */
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+    backdrop-filter: saturate(140%) blur(4px);
+}
+.theme-toggle-btn:hover {
+    background-color: rgba(51, 65, 85, 0.4);
+    border-color: rgba(71, 85, 105, 0.8);
+    transform: translateY(-1px);
+}
+.theme-toggle-btn:active {
+    transform: translateY(0);
+}
+
+/* Global lysmodus */
+.theme-light body {
+    background-color: #f6f7fb;
+    color: #111827; /* gray-900 */
+}
+.theme-light #page1 {
+    background-color: #f3f4f6 !important; /* gray-100 */
+}
+.theme-light .dashboard-container {
+    background-color: #f8fafc !important; /* slate-50 */
+}
+
+/* Paneler på side 1 */
+.theme-light .card-panel {
+    background-color: #f9fafb !important; /* off-white */
+    border-color: #e5e7eb !important; /* slate-200 */
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14), 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+.theme-light .summary-panel {
+    background-color: #eff6ff !important; /* blue-50 fill */
+    border: 1px solid #bfdbfe !important; /* blue-200 */
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14), 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+.theme-light .metrics-panel {
+    background-color: #f9fafb !important; /* off-white */
+    border-color: #bfdbfe !important; /* blue-200 */
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14), 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+/* Typografi inne i panelene (unngår å påvirke knapper) */
+.theme-light .card-panel .text-white,
+.theme-light .summary-panel .text-white,
+.theme-light .metrics-panel .text-white,
+.theme-light .rate-table-container .text-white {
+    color: #111827 !important;
+}
+.theme-light .card-panel .text-slate-300,
+.theme-light .summary-panel .text-slate-300,
+.theme-light .metrics-panel .text-slate-300,
+.theme-light .rate-table-container .text-slate-300 {
+    color: #374151 !important; /* gray-700 */
+}
+.theme-light .heading-l,
+.theme-light .heading-m,
+.theme-light .heading-s {
+    color: #111827 !important;
+}
+.theme-light .output-label {
+    color: #6b7280 !important; /* gray-500 */
+}
+.theme-light .output-value {
+    color: #2563eb !important; /* blue-600 for a crisp highlight */
+}
+
+/* Inputs */
+.theme-light input[type="text"].asset-input {
+    background-color: #f9fafb; /* off-white */
+    border-color: #bfdbfe; /* blue-200 */
+    color: #111827;
+}
+/* Gi samme blå fyll kun til "Privat gjeld"-feltet i lysmodus */
+.theme-light #private-debt.asset-input {
+    background-color: #eff6ff; /* blue-50 fill */
+    border-color: #bfdbfe; /* blue-200 */
+}
+.theme-light input[type="text"].asset-input::placeholder {
+    color: #9ca3af; /* gray-400 */
+}
+.theme-light input[type="text"].asset-input:focus {
+    border-color: #60A5FA;
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.35);
+}
+
+/* Range */
+.theme-light input[type="range"] {
+    background: #e5e7eb;
+}
+.theme-light input[type="range"]::-webkit-slider-thumb {
+    background: #60A5FA;
+    border-color: #e5e7eb;
+}
+.theme-light input[type="range"]::-moz-range-thumb {
+    background: #60A5FA;
+    border-color: #e5e7eb;
+}
+
+/* Personknapper (inaktiv variant) */
+.theme-light #person-count .person-btn.bg-slate-700,
+.theme-light #person-count .person-btn.text-slate-300 {
+    background-color: #e5e7eb !important;
+    color: #374151 !important;
+}
+
+/* Reset-knapp */
+.theme-light #reset-btn {
+    background-color: #f3f4f6 !important;
+    color: #374151 !important;
+    border-color: #e5e7eb !important;
+}
+
+/* Output FAB */
+.theme-light #outputFab {
+    background-color: rgba(17, 24, 39, 0.06) !important; /* gray-900/6% */
+    color: #374151 !important;
+    border-color: #e5e7eb !important;
+}
+
+/* Side 2 tabeller */
+.theme-light .rate-table-container {
+    background-color: #f9fafb;
+    border: 1px solid #bfdbfe; /* blue-200 */
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14), 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+.theme-light .rate-table-as {
+    background-color: #eff6ff; /* blue-50 */
+}
+.theme-light .rate-table-header {
+    color: #374151;
+    border-bottom-color: #e5e7eb;
+}
+.theme-light .rate-table-row {
+    border-bottom-color: #e5e7eb;
+}
+.theme-light .rate-table-row-label {
+    color: #111827;
+}
+.theme-light .rate-table-final-row {
+    color: #111827;
+    background-color: #f3f4f6;
+}
+
+/* Scrollbar lys */
+.theme-light .custom-scrollbar::-webkit-scrollbar-track {
+    background: #f3f4f6;
+}
+.theme-light .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #93c5fd; /* blue-300 */
+}
+.theme-light .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #60a5fa; /* blue-400 */
+}
+
+/* Tema-knapp i lysmodus */
+.theme-light .theme-toggle-btn {
+    background-color: rgba(255, 255, 255, 0.85);
+    color: #111827;
+    border-color: rgba(229, 231, 235, 0.9);
+}
+.theme-light .theme-toggle-btn:hover {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-color: rgba(209, 213, 219, 1);
+}
+
+/* Større felt for Privat gjeld (gjelder alle tema) */
+#private-debt.asset-input {
+    height: 3rem; /* økt fra ~40px til ~48px */
+    font-size: 1.0625rem; /* 17px for bedre lesbarhet */
+}
+
+/* Person-knapper: litt høyere og mer kubiske (gjelder alle tema) */
+.person-btn {
+    padding-top: 0.65rem; /* ~10px */
+    padding-bottom: 0.65rem; /* ~10px */
+    border-radius: 0.75rem; /* mer kubisk vs rounded-full */
+    font-size: 0.95rem; /* litt større tekst */
+}
+
+/* Nullstill-knapp: litt større font (gjelder alle tema) */
+#reset-btn {
+    font-size: 0.95rem; /* opp fra text-xs */
+}
+
+/* Litt mer luft mellom overskrift og boksene (Side 1) */
+header.text-center.mb-1.relative {
+    margin-bottom: 1.75rem !important; /* ~28px */
+}
+
+/* Gi samme blå fyll til "Privat gjeld"-feltet i lysmodus */
+.theme-light #private-debt.asset-input {
+    background-color: #dbeafe; /* blue-100 stronger fill */
+    border-color: #bfdbfe; /* blue-200 */
+}
+/* Personknapper med samme blå fyll i lysmodus */
+.theme-light #person-count .person-btn {
+    background-color: #dbeafe !important; /* blue-100 */
+    color: #1f2937 !important; /* gray-800 for readability */
+    border: 1px solid #bfdbfe !important; /* subtle border */
+}
+.theme-light #person-count .person-btn:hover {
+    background-color: #c7ddfd !important; /* slightly deeper on hover */
 }
 

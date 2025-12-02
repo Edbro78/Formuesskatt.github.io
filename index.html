@@ -32,6 +32,12 @@
     Disclaimer / forklaring
 </button>
 
+<!-- Theme Toggle Button -->
+<button id="themeToggle" class="absolute right-0 top-0 theme-toggle-btn" aria-label="Bytt tema" title="Bytt tema">
+    <span class="theme-icon-sun">☀︎</span>
+    <span class="theme-icon-moon" style="display:none;">☾</span>
+ </button>
+
 <h1 class="heading-l text-white mb-2">Formuesskatt</h1> 
 <p class="text-slate-400 paragraph-text"></p> 
 
@@ -42,7 +48,7 @@
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 flex-grow"> <!-- 2 like brede kolonner på desktop -->
 <!-- Kolonne 1: Input -->
 <div class="lg:col-span-1 space-y-6 flex flex-col"> 
-<div class="bg-[#24385B] p-6 rounded-xl h-full flex flex-col border border-[#364A6E]"> 
+<div class="bg-[#24385B] p-6 rounded-xl h-full flex flex-col border border-[#364A6E] card-panel"> 
 <h2 class="heading-m text-white border-b border-[#364A6E] pb-4 mb-8">Input</h2> 
 <div class="space-y-5 flex-grow"> 
 <div>
@@ -68,13 +74,13 @@
 
 <!-- Kolonne 2: Resultater og navigasjon -->
 <div class="lg:col-span-1 space-y-6 flex flex-col"> 
-<div class="bg-[#24385B] p-6 rounded-xl h-full flex flex-col border border-[#364A6E]"> <!-- Økt padding for å fylle bedre -->
+<div class="bg-[#24385B] p-6 rounded-xl h-full flex flex-col border border-[#364A6E] card-panel"> <!-- Økt padding for å fylle bedre -->
 <h2 class="heading-m text-white border-b border-[#364A6E] pb-4 mb-8">Resultater</h2> 
-<div class="text-center bg-[#0F172A]/80 p-6 rounded-xl mb-6"> <!-- Økt padding og mb for å fylle bedre -->
+<div class="text-center bg-[#0F172A]/80 p-6 rounded-xl mb-6 summary-panel"> <!-- Økt padding og mb for å fylle bedre -->
 <div id="total-wealth-tax" class="output-value heading-m">0 kr</div>
 <div class="output-label mt-1 heading-s">Total Formuesskatt</div>
 </div>
-<div class="space-y-5 bg-slate-800/60 p-6 rounded-xl flex-grow text-sm border border-[#364A6E]"> <!-- Økt space-y, padding, og text-size -->
+<div class="space-y-5 bg-slate-800/60 p-6 rounded-xl flex-grow text-sm border border-[#364A6E] metrics-panel"> <!-- Økt space-y, padding, og text-size -->
 <div class="flex justify-between items-center text-slate-300 paragraph-text"><span>Bruttoformue:</span><span id="gross-wealth" class="heading-s text-white">0 kr</span></div><hr class="border-[#364A6E]">
 <div class="flex justify-between items-center text-slate-300 paragraph-text"><span>Verdsettelsesrabatt:</span><span id="total-discount" class="heading-s text-white">0 kr</span></div><hr class="border-[#364A6E]">
 <div class="flex justify-between items-center text-slate-300 paragraph-text"><span>Nettoformue (etter rabatt):</span><span id="net-wealth" class="heading-s text-white">0 kr</span></div><hr class="border-[#364A6E]">
