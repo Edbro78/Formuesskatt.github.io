@@ -371,6 +371,25 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialiserer applikasjonen når DOM er fullastet.
     WealthTaxApp.init();
 
+    // Sørg for identisk høyde: Høyre panel matcher venstre panel
+    function syncPanelHeights() {
+        const panels = document.querySelectorAll('#page1 .card-panel');
+        if (!panels || panels.length < 2) return;
+        // Reset før måling
+        panels[0].style.minHeight = 'auto';
+        panels[1].style.minHeight = 'auto';
+        const leftHeight = panels[0].offsetHeight;
+        // Høyre panel skal ikke være lavere enn venstre
+        panels[1].style.minHeight = leftHeight + 'px';
+    }
+    // Kjør ved start og ved endringer som påvirker layout
+    syncPanelHeights();
+    window.addEventListener('resize', syncPanelHeights);
+    const page1El = document.getElementById('page1');
+    if (page1El) {
+        page1El.addEventListener('input', syncPanelHeights);
+    }
+
     // --- OUTPUT MODAL & KOPIERFUNKSJON ---
     const outputFab = document.getElementById('outputFab');
     const outputModal = document.getElementById('outputModal');
@@ -525,16 +544,15 @@ document.addEventListener('DOMContentLoaded', function() {
             setIcon(mode);
         }
 
-        // Default: behold mørk hvis ikke valgt
-        const saved = localStorage.getItem(THEME_KEY);
-        const initialMode = saved === 'light' ? 'light' : 'dark';
+        // Alltid start i mørk modus ved innlasting/refresh
+        const initialMode = 'dark';
         applyTheme(initialMode);
 
         if (toggleBtn) {
             toggleBtn.addEventListener('click', () => {
                 const next = rootEl.classList.contains('theme-light') ? 'dark' : 'light';
                 applyTheme(next);
-                try { localStorage.setItem(THEME_KEY, next); } catch (_) {}
+                // Ikke persister tema over refresh; lysmodus må være et aktivt valg hver gang
             });
         }
     })();

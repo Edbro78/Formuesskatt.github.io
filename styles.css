@@ -2,10 +2,11 @@
 
 /* --- Generelle Stiler --- */
 html, body {
-    height: 100%; /* Sikrer at html og body tar hele viewport-høyden */
+    width: 100vw; /* Låst til viewport-bredde */
+    height: 100vh; /* Låst til viewport-høyde */
+    height: 100dvh; /* Bedre støtte på mobile nettlesere */
     margin: 0;
-    overflow-x: hidden; /* Forhindrer horisontal scrollbar */
-    overflow-y: hidden; /* Forhindrer vertikal scrollbar på hovedsiden, innhold i bokser kan scrolle om nødvendig */
+    overflow: hidden; /* Ingen vindusscrolling, selv ved zoom */
 }
 
 body {
@@ -38,7 +39,7 @@ body {
 /* --- Dashboard Spesifikke Stiler --- */
         .dashboard-container {
             background-color: var(--dark-blue);
-            min-height: 100vh;
+            min-height: 100%;
             width: 100%;
             flex-grow: 1; 
             display: flex; 
@@ -50,7 +51,7 @@ body {
 @media (min-width: 1024px) { /* lg breakpoint */
     .dashboard-container {
         padding-top: 2.5rem; 
-        padding-bottom: 2.5rem; /* ekstra luft nederst for bedre synlig ramme */
+        padding-bottom: 3.5rem; /* økt bunnmargin for bedre visuell luft */
     }
 }
 
